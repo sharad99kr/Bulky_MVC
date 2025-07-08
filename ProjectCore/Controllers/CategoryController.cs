@@ -8,7 +8,8 @@ namespace ProjectCore.Controllers
     {
         private readonly ApplicationDbContext _db;
         public CategoryController(ApplicationDbContext db) {
-            _db = db;
+			//In constructor we are requesting for the implementation of ApplicationDbContext
+			_db = db;
         }
         public IActionResult Index() {
             List<Category> objCategoryList = _db.Categories.ToList();
@@ -16,12 +17,19 @@ namespace ProjectCore.Controllers
         }
 
         public IActionResult Create() {
-            return View();
+            return View(); //we can choose to pass an empty object or nothing. 
+            //If nothing is passed, we automatically get an empty object of model defined in view
+            //In above method we are explicitely passing the category list in the view
         }
+
+
         [HttpPost]
         public IActionResult Create(Category obj) {
+            //we have two methods with same name create. The first method is sending/creating empty object of model
+            //while this method is receiving same object with data in it due to post operation. Hence parameter in method signature
             if(obj.Name == obj.DisplayOrder.ToString()) {
                 ModelState.AddModelError("Name", "The display order cannot be same as name"); //name links error to input field with name id in Create.cshtml file
+                //ModelState.AddModelError is for custom error where we provide model key("Name") and error message
             }
 
             if(obj.Name.ToLower() == "test") {
@@ -42,7 +50,10 @@ namespace ProjectCore.Controllers
                 return NotFound();
             }
             Category categoryFromDb = _db.Categories.Find(id);
-            if(categoryFromDb == null) {
+			//alternate ways to do a query on id. Using Linq
+            //Category categoryFromDb1 = _db.Categories.FirstOrDefault(u=>u.Id==id);
+			//Category categoryFromDb2 = _db.Categories.Where(u => u.Id == id).FirstOrDefault();
+			if(categoryFromDb == null) {
                 return NotFound();
             }
             return View(categoryFromDb);
@@ -57,7 +68,8 @@ namespace ProjectCore.Controllers
             if(ModelState.IsValid) {
                 _db.Categories.Update(obj);
                 _db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index"); //this can be used to redirect pages in same controller. If we want to go to another
+                //controller,we can pass the name of controller as second parameter along with action name
             }
 
             return View();
@@ -74,8 +86,9 @@ namespace ProjectCore.Controllers
             return View(categoryFromDb);
         }
 
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePOST(int? id) {
+        [HttpPost, ActionName("Delete")] 
+        public IActionResult DeletePOST(int? id) {//delete get and post cannot be of same name since parameter is same. It will cause confusion
+            //So, we updated delete post method name and explicitely tell this end point action name is delete
             
             Category? obj=_db.Categories.Find(id);
             if(obj == null) {

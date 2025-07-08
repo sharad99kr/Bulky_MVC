@@ -1,4 +1,17 @@
-﻿@model List<Category>
+﻿@model List<Category> 
+<!-- This is passing data from controller to views. 
+Also make sure nothing else is written in above line. 
+Even a comment line will throw error-->
+
+
+@*if(TempData["success"] != null) {
+	<h2>@TempData["success"]</h2>
+}*@
+<!-- This temp data persist only for new view and it disappears on refresh. 
+To reuse this block of code in more than one view, we can place the code block in partial view. 
+In this case we have placed it inside _notification.cshtml view-->
+
+
 @*<partial name="_notification"/>*@
 <!-- This is partial script which is used for notification, we can place here if only used once or under _layout if used all across application
 		the name should be exactly same as present under shared folder -->
@@ -34,8 +47,10 @@
 	</tr>
 	</thead>
 	<tbody>
-		@foreach(var obj in Model){
-		<tr>
+		@foreach(var obj in Model){   <!-- we can have loops and write code in html. 
+		Here we are iterating over the model data defined at the top 
+		Make sure Model is starting with Capital letter-->
+			<tr>
 			<td>
 				@obj.Name
 			</td>
@@ -44,13 +59,13 @@
 			</td>
 			<td>
 				<div class="w-75 btn-group" role="group">
-							<a asp-controller="Category" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
-								<!-- asp-route- comes as default and then we add id to to target the property we have defined in the parameter of action method ie Edit-->
-								<i class="bi bi-pencil-square"></i> Edit
+					<a asp-controller="Category" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+						<!-- asp-route- tag helper comes as default and then we add id/CategoryID to to target the property we have defined in the parameter of action method ie Edit-->
+						<i class="bi bi-pencil-square"></i> Edit
 					</a>
-							<a asp-controller="Category" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
-								<i class="bi bi-trash3"></i> Delete
-							</a>
+					<a asp-controller="Category" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
+						<i class="bi bi-trash3"></i> Delete
+					</a>
 				</div>
 			</td>
 		</tr>

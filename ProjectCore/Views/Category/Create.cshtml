@@ -13,12 +13,14 @@
 		<form method="post" class="row">
 			<div class="border p-3 ">
 
-				@*<div asp-validation-summary="ModelOnly"></div> *@ <!--displays all validation error in one place. If instead of ALL, we add ModelOnly, the error list will not include property related error messages-->
+			@*<div asp-validation-summary="ModelOnly"></div> *@ <!--displays all validation error in one place. If instead of ALL, we add ModelOnly, the error list will not include property related error messages-->
 			<!-- If instead of ALL, we add None, no error will be displayed in global scope-->
 			<div class="form-floating py-2 col-12">
 					<input asp-for="Name" class="form-control border-0 shadow" />
 					<label asp-for="Name" class="ms-2"></label>
-					
+					<!-- asp-for is a tag helper which directly pulls model properties along with its data type
+						Here we don't have to define type of 'Name'. Also 'Name1' will throw error as model doesn't have definition for it'
+					-->
 				<span asp-validation-for="Name" class="text-bg-danger"></span>
 			</div>
 				<div class="form-floating py-2 col-12">
@@ -26,6 +28,7 @@
 					<label asp-for="DisplayOrder" class="ms-2"></label>
 					
 				<span asp-validation-for="DisplayOrder" class="text-bg-danger"></span>
+					<!-- asp-validation-for is a tag helper which displays error when validation fails-->
 			</div>
 			<div class="row pt-2">
 				<div class="col-6 col-md-3">
@@ -37,7 +40,9 @@
 				</div>
 
 			</div>
-		
+
+				<!-- <partial name="_ValidationScriptsPartial" />
+				we could added partial script view directly in html -->
 		
 		</div>
 		</form>
@@ -51,6 +56,7 @@
 	@{
 		<partial name="_ValidationScriptsPartial" />
 		<!-- This is partial js script which is used for client side validation,
+		provided by default for client side validation,
 		the name should be exactly same as present under shared folder -->
 	}
 }

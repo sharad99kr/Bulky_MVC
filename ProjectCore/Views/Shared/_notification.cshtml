@@ -8,6 +8,17 @@
 	
 }
 
+@if(TempData["error"] != null) {
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+	<!-- We need jquery when using tostar-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+	<script type="text/javascript">
+		toastr.error('@TempData["error"]');
+	</script>
+
+}
+
 
 <!-- This is partial view which is used for notification,
 		We can define the logic in one place and use it all over the application without code repetition -->
