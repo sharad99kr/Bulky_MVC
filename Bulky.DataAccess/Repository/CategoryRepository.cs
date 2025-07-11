@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bulky.DataAccess.Repository
 {
-	internal class CategoryRepository : Repository<Category>, ICategoryRepository
+	public class CategoryRepository : Repository<Category>, ICategoryRepository
 	{
 		//CategoryRepository Inherits shared data access logic methods from a generic base class (Repository<Category>) and
 		//Implements custom logic for methods defined in the interface ICategoryRepository

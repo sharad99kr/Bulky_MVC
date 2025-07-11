@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Bulky.DataAccess.Data;
 using Bulky.Models;
+using Bulky.DataAccess.Repository.IRepository;
 
 namespace ProjectCore.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext db) {
+        private readonly ICategoryRepository categoryRepository;
+        public CategoryController(ICategoryRepository db) {
 			//In constructor we are requesting for the implementation of ApplicationDbContext
-			_db = db;
+			categoryRepository = db;
         }
         public IActionResult Index() {
-            List<Category> objCategoryList = _db.Categories.ToList();
-            return View(objCategoryList);
+			List<Category> objCategoryList = categoryRepository.GetAll().ToList();
+			return View(objCategoryList);
         }
 
         public IActionResult Create() {
@@ -37,8 +38,8 @@ namespace ProjectCore.Controllers
             }
 
             if(ModelState.IsValid) {
-                _db.Categories.Add(obj);
-                _db.SaveChanges();
+                categoryRepository.Add(obj);
+                categoryRepository.Save();
                 TempData["success"] = "Category created successfully!"; //temp data is used to preserve info until next load of page. If page is refreshed, data is loast
                 return RedirectToAction("Index");
             }
@@ -49,10 +50,12 @@ namespace ProjectCore.Controllers
             if(id==null || id == 0) {
                 return NotFound();
             }
-            Category categoryFromDb = _db.Categories.Find(id);
+			//Category categoryFromDb = _db.Categories.Find(id);
 			//alternate ways to do a query on id. Using Linq
-            //Category categoryFromDb1 = _db.Categories.FirstOrDefault(u=>u.Id==id);
+			//Category categoryFromDb1 = _db.Categories.FirstOrDefault(u=>u.Id==id);
 			//Category categoryFromDb2 = _db.Categories.Where(u => u.Id == id).FirstOrDefault();
+
+			Category categoryFromDb = categoryRepository.Get(u=>u.Id==id);
 			if(categoryFromDb == null) {
                 return NotFound();
             }
@@ -66,9 +69,9 @@ namespace ProjectCore.Controllers
            //of updating the current row. To solve this we create hidden id in Edit html file
 
             if(ModelState.IsValid) {
-                _db.Categories.Update(obj);
-                _db.SaveChanges();
-                return RedirectToAction("Index"); //this can be used to redirect pages in same controller. If we want to go to another
+				categoryRepository.Update(obj);
+				categoryRepository.Save();
+				return RedirectToAction("Index"); //this can be used to redirect pages in same controller. If we want to go to another
                 //controller,we can pass the name of controller as second parameter along with action name
             }
 
@@ -79,8 +82,8 @@ namespace ProjectCore.Controllers
             if(id == null || id == 0) {
                 return NotFound();
             }
-            Category categoryFromDb = _db.Categories.Find(id);
-            if(categoryFromDb == null) {
+            Category categoryFromDb = categoryRepository.Get(u => u.Id == id);
+			if(categoryFromDb == null) {
                 return NotFound();
             }
             return View(categoryFromDb);
@@ -90,13 +93,13 @@ namespace ProjectCore.Controllers
         public IActionResult DeletePOST(int? id) {//delete get and post cannot be of same name since parameter is same. It will cause confusion
             //So, we updated delete post method name and explicitely tell this end point action name is delete
             
-            Category? obj=_db.Categories.Find(id);
-            if(obj == null) {
+            Category? obj = categoryRepository.Get(u => u.Id == id);
+			if(obj == null) {
                 return NotFound();
             }
-            _db.Categories.Remove(obj);
-            _db.SaveChanges();
-            TempData["success"] = "Category deleted successfully!";
+			categoryRepository.Remove(obj);
+			categoryRepository.Save();
+			TempData["success"] = "Category deleted successfully!";
             return RedirectToAction("Index");
         }
     }

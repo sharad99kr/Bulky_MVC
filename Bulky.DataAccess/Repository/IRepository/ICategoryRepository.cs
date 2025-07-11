@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bulky.DataAccess.Repository.IRepository
 {
-	internal interface ICategoryRepository : IRepository<Category>
+	public interface ICategoryRepository : IRepository<Category>
 	{
 		//This interface will get all the methods defined in IRepository
 		//and in addition, implement 2 new methods i.e. Update and Save
