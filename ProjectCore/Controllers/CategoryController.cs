@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProjectCore.Data;
-using ProjectCore.Models;
+using Bulky.DataAccess.Data;
+using Bulky.Models;
 
 namespace ProjectCore.Controllers
 {
