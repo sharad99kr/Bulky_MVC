@@ -2,6 +2,7 @@
 using Bulky.DataAccess.Data;
 using Bulky.Models;
 using Bulky.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ProjectCore.Areas.Admin.Controllers
 {
@@ -17,14 +18,27 @@ namespace ProjectCore.Areas.Admin.Controllers
         public IActionResult Index()
         {
             List<Product> objProductList = unitOfWork.Product.GetAll().ToList();
-            return View(objProductList);
+            
+			return View(objProductList);
         }
 
         public IActionResult Create()
         {
-            return View(); //we can choose to pass an empty object or nothing. 
-            //If nothing is passed, we automatically get an empty object of model defined in view
-            //In above method we are explicitely passing the category list in the view
+			//we need to pass category list as well at this location.
+			//Step 1 would be to fetch all available categories with name and id
+			//We will use projections in EF core to achieve it
+			IEnumerable<SelectListItem> CategoryList = unitOfWork
+														.Category
+														.GetAll()
+														.Select(u => new SelectListItem {
+															Text = u.Name,
+															Value = u.Id.ToString()
+														});
+			//step2 will be to pass this object(CategoryList) to the view
+            //we would be using ViewBag to pass this data. It persists
+            //only for current http request and data is lost if there is redirection
+            ViewBag.CategoryList = CategoryList;
+			return View(); 
         }
 
 
