@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bulky.Models
 {
@@ -43,5 +44,11 @@ namespace Bulky.Models
         [Display(Name = "Price for 100+")]
         [Range(1, 1000)]
         public double Price100 { get; set; }
+
+        public int CategoryId { get; set; }
+
+        //we need a navigation property to category table 'Category' and exclusively has foreign key
+        [ForeignKey("CategoryId")]
+        public Category Category { get; set; }
     }
 }
