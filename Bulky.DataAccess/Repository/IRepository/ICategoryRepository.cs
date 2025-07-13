@@ -12,6 +12,5 @@ namespace Bulky.DataAccess.Repository.IRepository
 		//This interface will get all the methods defined in IRepository
 		//and in addition, implement 2 new methods i.e. Update and Save
 		void Update(Category category);
-		void Save();
 	}
 }

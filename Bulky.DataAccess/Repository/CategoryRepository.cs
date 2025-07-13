@@ -26,9 +26,6 @@ namespace Bulky.DataAccess.Repository
 			//Step 5: This db reference will be used to perform crud operation in both the classes
 			_db = db;
 		}
-		public void Save() {
-			_db.SaveChanges();
-		}
 
 		public void Update(Category category) {
 			_db.Categories.Update(category);

@@ -7,13 +7,13 @@ namespace ProjectCore.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository categoryRepository;
-        public CategoryController(ICategoryRepository db) {
+        private readonly IUnitOfWork unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork) {
 			//In constructor we are requesting for the implementation of ApplicationDbContext
-			categoryRepository = db;
+			this.unitOfWork = unitOfWork;
         }
         public IActionResult Index() {
-			List<Category> objCategoryList = categoryRepository.GetAll().ToList();
+			List<Category> objCategoryList = unitOfWork.Category.GetAll().ToList();
 			return View(objCategoryList);
         }
 
@@ -38,8 +38,8 @@ namespace ProjectCore.Controllers
             }
 
             if(ModelState.IsValid) {
-                categoryRepository.Add(obj);
-                categoryRepository.Save();
+				unitOfWork.Category.Add(obj);
+				unitOfWork.Save();
                 TempData["success"] = "Category created successfully!"; //temp data is used to preserve info until next load of page. If page is refreshed, data is loast
                 return RedirectToAction("Index");
             }
@@ -55,7 +55,7 @@ namespace ProjectCore.Controllers
 			//Category categoryFromDb1 = _db.Categories.FirstOrDefault(u=>u.Id==id);
 			//Category categoryFromDb2 = _db.Categories.Where(u => u.Id == id).FirstOrDefault();
 
-			Category categoryFromDb = categoryRepository.Get(u=>u.Id==id);
+			Category categoryFromDb = unitOfWork.Category.Get(u=>u.Id==id);
 			if(categoryFromDb == null) {
                 return NotFound();
             }
@@ -69,8 +69,8 @@ namespace ProjectCore.Controllers
            //of updating the current row. To solve this we create hidden id in Edit html file
 
             if(ModelState.IsValid) {
-				categoryRepository.Update(obj);
-				categoryRepository.Save();
+				unitOfWork.Category.Update(obj);
+				unitOfWork.Save();
 				return RedirectToAction("Index"); //this can be used to redirect pages in same controller. If we want to go to another
                 //controller,we can pass the name of controller as second parameter along with action name
             }
@@ -82,7 +82,7 @@ namespace ProjectCore.Controllers
             if(id == null || id == 0) {
                 return NotFound();
             }
-            Category categoryFromDb = categoryRepository.Get(u => u.Id == id);
+            Category categoryFromDb = unitOfWork.Category.Get(u => u.Id == id);
 			if(categoryFromDb == null) {
                 return NotFound();
             }
@@ -93,12 +93,12 @@ namespace ProjectCore.Controllers
         public IActionResult DeletePOST(int? id) {//delete get and post cannot be of same name since parameter is same. It will cause confusion
             //So, we updated delete post method name and explicitely tell this end point action name is delete
             
-            Category? obj = categoryRepository.Get(u => u.Id == id);
+            Category? obj = unitOfWork.Category.Get(u => u.Id == id);
 			if(obj == null) {
                 return NotFound();
             }
-			categoryRepository.Remove(obj);
-			categoryRepository.Save();
+			unitOfWork.Category.Remove(obj);
+			unitOfWork.Save();
 			TempData["success"] = "Category deleted successfully!";
             return RedirectToAction("Index");
         }
