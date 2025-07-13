@@ -50,5 +50,7 @@ namespace Bulky.Models
         //we need a navigation property to category table 'Category' and exclusively has foreign key
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
+
+        public string ImageUrl {  get; set; }
     }
 }
