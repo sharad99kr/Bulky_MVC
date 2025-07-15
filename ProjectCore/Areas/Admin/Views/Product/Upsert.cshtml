@@ -4,13 +4,14 @@
 <div class="card shadow border-0 my-4">
 	<div class="card-header bg-secondary bg-gradient ml-0 py-3">
 	<div class="col-12 text-center">
-		<h2 class="text-white py-2">Create product</h2>
+			<h2 class="text-white py-2">@(Model.Product.Id != 0 ? "Update":"Create") product</h2>
 	</div>
 	</div>
 
 	<div class="card-body p-4">
 		<form method="post" class="row" enctype="multipart/form-data">
 			<!-- For file upload to work, we need enctype="multipart/form-data-->
+			<input asp-for="@Model.Product.Id" hidden/>
 			<div class="border p-3 ">
 				@*<div asp-validation-summary="ModelOnly"></div> *@ <!--displays all validation error in one place. If instead of ALL, we add ModelOnly, the error list will not include property related error messages-->
 				<!-- If instead of ALL, we add None, no error will be displayed in global scope-->
@@ -70,7 +71,12 @@
 				</div>
 				<div class="row pt-2">
 					<div class="col-6 col-md-3">
-						<button type="submit" class="btn btn-primary form-control">Create</button>
+						@if(Model.Product.Id != 0){
+							<button type="submit" class="btn btn-primary form-control">Update</button>
+						}else{
+							<button type="submit" class="btn btn-primary form-control">Create</button>
+						}
+						
 					</div>
 
 					<div class="col-6 col-md-3">
