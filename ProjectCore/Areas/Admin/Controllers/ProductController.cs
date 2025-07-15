@@ -75,7 +75,7 @@ namespace ProjectCore.Areas.Admin.Controllers
                     using(var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create)) {
                         file.CopyTo(fileStream);
                     }
-                    productVM.Product.ImageUrl = @"\images\product" + fileName;
+                    productVM.Product.ImageUrl = @"\images\product\" + fileName;
                 }
 
 				unitOfWork.Product.Add(productVM.Product);
