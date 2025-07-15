@@ -3,6 +3,7 @@ using Bulky.DataAccess.Data;
 using Bulky.Models;
 using Bulky.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Bulky.Models.ViewModels;
 
 namespace ProjectCore.Areas.Admin.Controllers
 {
@@ -39,25 +40,37 @@ namespace ProjectCore.Areas.Admin.Controllers
 			//1. Data passed as ViewBag persists only for current http request and data is lost if there is redirection
 			//2. ViewData is similar to ViewBag but it's value must be type cast before use
             //3. TempData uses session to store data. It's value also needs to be type cast before use. It can be used for error/validations messages as well
-			
+			//Usually we avoid using them and use ViewModels instead. This is because views are tightly bound wwith models and it is hard to identify where the extra data is coming from.
             //ViewBag.CategoryList = CategoryList;
-			ViewData["CategoryList"] = CategoryList;
-			return View(); 
+			//ViewData["CategoryList"] = CategoryList;
+
+            ProductVM productVM = new() {
+                CategoryList = CategoryList,
+                Product = new Product()
+            };
+			return View(productVM); 
         }
 
 
         [HttpPost]
-        public IActionResult Create(Product obj)
+        public IActionResult Create(ProductVM productVM)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.Product.Add(obj);
+                unitOfWork.Product.Add(productVM.Product);
                 unitOfWork.Save();
                 TempData["success"] = "Product created successfully!"; //temp data is used to preserve info until next load of page. If page is refreshed, data is loast
                 return RedirectToAction("Index");
-            }
-
-            return View();
+            } else {
+				productVM.CategoryList = unitOfWork
+                                        .Category
+                                        .GetAll()
+                                        .Select(u => new SelectListItem {
+                                            Text = u.Name,
+                                            Value = u.Id.ToString()
+                                        });
+				return View(productVM);
+			}
         }
         public IActionResult Edit(int? id)
         {
