@@ -11,10 +11,12 @@ namespace ProjectCore.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment webHostEnvironment; //this is to access www root folder for images
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             //In constructor we are requesting for the implementation of ApplicationDbContext
             this.unitOfWork = unitOfWork;
+            this.webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -65,7 +67,18 @@ namespace ProjectCore.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.Product.Add(productVM.Product);
+				string wwwRootPath = webHostEnvironment.WebRootPath;
+                if(file != null) {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); //we are providing new name to file + preserving the extension
+                    string productPath = Path.Combine(wwwRootPath, @"images\product");
+                    
+                    using(var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create)) {
+                        file.CopyTo(fileStream);
+                    }
+                    productVM.Product.ImageUrl = @"\images\product" + fileName;
+                }
+
+				unitOfWork.Product.Add(productVM.Product);
                 unitOfWork.Save();
                 TempData["success"] = "Product created successfully!"; //temp data is used to preserve info until next load of page. If page is refreshed, data is loast
                 return RedirectToAction("Index");
