@@ -35,9 +35,13 @@ namespace ProjectCore.Areas.Admin.Controllers
 															Value = u.Id.ToString()
 														});
 			//step2 will be to pass this object(CategoryList) to the view
-            //we would be using ViewBag to pass this data. It persists
-            //only for current http request and data is lost if there is redirection
-            ViewBag.CategoryList = CategoryList;
+			//we can pass data that are not in model using 3 ways : 1.ViewBag 2.ViewData 3.TempData
+			//1. Data passed as ViewBag persists only for current http request and data is lost if there is redirection
+			//2. ViewData is similar to ViewBag but it's value must be type cast before use
+            //3. TempData uses session to store data. It's value also needs to be type cast before use. It can be used for error/validations messages as well
+			
+            //ViewBag.CategoryList = CategoryList;
+			ViewData["CategoryList"] = CategoryList;
 			return View(); 
         }
 
