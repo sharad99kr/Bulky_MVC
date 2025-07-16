@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/ProjectCore.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" /> <!--keep this line as last if bootstrap is not tsking effect-->
 </head>
 <body>
@@ -64,10 +65,23 @@
             Made with <i class="bi bi-heart-fill"></i> by Sharad
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Site JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- DataTables (after jQuery) -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <!-- TinyMCE -->
     <script src="https://cdn.tiny.cloud/1/l3txprpcvyjwm0w40lvhv3c1qxqhtid8qsr2fvd2bgwphcma/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <!-- Razor Section for page-specific JS -->
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
