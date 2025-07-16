@@ -21,7 +21,7 @@ namespace ProjectCore.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> objProductList = unitOfWork.Product.GetAll().ToList();
+            List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
             
 			return View(objProductList);
         }

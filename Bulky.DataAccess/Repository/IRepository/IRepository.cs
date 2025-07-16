@@ -12,8 +12,8 @@ namespace Bulky.DataAccess.Repository.IRepository
 
 		//T - Category or any generic model on which we perform crud operation
 		// Retriieve categories
-		IEnumerable<T> GetAll();
-		T Get(Expression<Func<T,bool>> filter); //this supports link operation to apply condition if needed
+		IEnumerable<T> GetAll(string? includeProperties = null);
+		T Get(Expression<Func<T,bool>> filter, string? includeProperties = null); //this supports link operation to apply condition if needed
 		void Add(T entity);
 		void Remove(T entity);
 		void RemoveRange(IEnumerable<T> entity);
