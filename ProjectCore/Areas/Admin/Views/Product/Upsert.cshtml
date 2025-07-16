@@ -12,6 +12,8 @@
 		<form method="post" class="row" enctype="multipart/form-data">
 			<!-- For file upload to work, we need enctype="multipart/form-data-->
 			<input asp-for="@Model.Product.Id" hidden/>
+			<input asp-for="@Model.Product.ImageUrl" hidden />
+			<!-- Since we don't have imageurl in input field, when the form is posted, it is not available in controller. To fix that we have added imageurl as hidden property-->
 			<div class="row">
 				<div class="col-10">
 					<div class="border p-3 ">
