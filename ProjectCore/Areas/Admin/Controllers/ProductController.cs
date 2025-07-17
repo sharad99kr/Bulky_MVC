@@ -109,20 +109,6 @@ namespace ProjectCore.Areas.Admin.Controllers
 			}
         }
 
-        public IActionResult Delete(int? id)
-        {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-            Product productFromDb = unitOfWork.Product.Get(u => u.Id == id);
-            if (productFromDb == null)
-            {
-                return NotFound();
-            }
-            return View(productFromDb);
-        }
-
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {//delete get and post cannot be of same name since parameter is same. It will cause confusion
@@ -145,6 +131,27 @@ namespace ProjectCore.Areas.Admin.Controllers
             List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return Json(new { data = objProductList });
         }
-        #endregion
-    }
+
+		
+		public IActionResult Delete(int? id) {
+
+            var productToBeDeleted = unitOfWork.Product.Get(u=>u.Id == id);
+            if (productToBeDeleted == null) {
+                return Json(new {success = false,message = "Error while deleting"});
+            }
+
+            var oldImagePath=Path.Combine(webHostEnvironment.WebRootPath,
+                                productToBeDeleted.ImageUrl.TrimStart('\\'));
+
+            if(System.IO.File.Exists(oldImagePath)) { 
+                System.IO.File.Delete(oldImagePath);
+            }
+
+            unitOfWork.Product.Remove(productToBeDeleted);
+            unitOfWork.Save();
+
+			return Json(new { success = true, message = "Delete Successful" });
+		}
+		#endregion
+	}
 }
