@@ -23,7 +23,12 @@ namespace ProjectCore.Areas.Customer.Controllers
             return View(productsList);
         }
 
-        public IActionResult Privacy()
+		public IActionResult Details(int productId) {
+			Product product = unitOfWork.Product.Get(u=>u.Id== productId, includeProperties: "Category");
+			return View(product);
+		}
+
+		public IActionResult Privacy()
         {
             return View();
         }
