@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Bulky.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Bulky.DataAccess.Data
 {
-    public class ApplicationDbContext : DbContext
-    {
+    public class ApplicationDbContext : IdentityDbContext
+    {//use nuget package manager to install packages related to IdentityDbContext. This package will break existing code at places which needs to be fixed after adding it
+     //This helps in using default Identity management provided by .NetCore
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
             
         }
