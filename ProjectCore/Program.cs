@@ -3,7 +3,7 @@ using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
-using ProjectCore.Areas.Identity.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
