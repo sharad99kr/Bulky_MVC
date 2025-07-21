@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Identity;
+using ProjectCore.Areas.Identity.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +12,11 @@ builder.Services.AddControllersWithViews();
 
 //when we add something to service class we are adding it to dependency injection
 //and telling the application to do this configuration whenever it is called for implementation
-builder.Services.AddDbContext<ApplicationDbContext>(options => 
+builder.Services.AddDbContext<Bulky.DataAccess.Data.ApplicationDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
