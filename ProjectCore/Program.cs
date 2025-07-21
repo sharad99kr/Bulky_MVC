@@ -17,7 +17,7 @@ builder.Services.AddDbContext<Bulky.DataAccess.Data.ApplicationDbContext>(option
 );
 
 builder.Services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
-
+builder.Services.AddRazorPages();//we need to notify when razor pages are present in the project(i.e. Identity pages)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
@@ -36,7 +36,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();//basically checking if user name and password is valid
 app.UseAuthorization();//access to pages is restricted by roles
-
+app.MapRazorPages();//this will make sure rounting is added to map the razor pages
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
