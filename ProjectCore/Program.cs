@@ -16,7 +16,7 @@ builder.Services.AddDbContext<Bulky.DataAccess.Data.ApplicationDbContext>(option
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
+builder.Services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -34,8 +34,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-app.UseAuthorization();
+app.UseAuthentication();//basically checking if user name and password is valid
+app.UseAuthorization();//access to pages is restricted by roles
 
 app.MapControllerRoute(
     name: "default",
