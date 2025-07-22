@@ -18,7 +18,7 @@ builder.Services.AddDbContext<Bulky.DataAccess.Data.ApplicationDbContext>(option
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>().AddDefaultTokenProviders(); //AddDefaultTokenProviders is needed for email confirmation token, generally default identity has implementation of default token providers
 builder.Services.AddRazorPages();//we need to notify when razor pages are present in the project(i.e. Identity pages)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
