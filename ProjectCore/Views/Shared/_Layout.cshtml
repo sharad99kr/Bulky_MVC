@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" /> <!--keep this line as last if bootstrap is not tsking effect-->
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -55,7 +55,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container flex-fill">
         <main role="main" class="pb-3">
             <partial name="_notification" />
             <!-- This is partial script which is used for notification, we can place here if used all across application
@@ -64,8 +64,10 @@
         </main>
     </div>
 
-    <footer class="border-top bg-primary text-white text-center py-2 small">
-        Made with <i class="bi bi-heart-fill"></i> by Sharad
+    <footer class="border-top bg-primary text-center py-2 small">
+        <div class="text-center">
+            Made with <i class="bi bi-heart-fill"></i> by Sharad
+        </div>
     </footer>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
