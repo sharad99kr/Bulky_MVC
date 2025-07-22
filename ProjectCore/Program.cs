@@ -3,6 +3,8 @@ using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
+using Bulky.Utility;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,10 +18,10 @@ builder.Services.AddDbContext<Bulky.DataAccess.Data.ApplicationDbContext>(option
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<Bulky.DataAccess.Data.ApplicationDbContext>();
 builder.Services.AddRazorPages();//we need to notify when razor pages are present in the project(i.e. Identity pages)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
