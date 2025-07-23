@@ -68,6 +68,11 @@
                             <option disabled selected>-Select Role-</option>
                         </Select>
                     </div>
+                    <div class="form-floating mb-3 col-md-6">
+                        <Select asp-for="Input.CompanyID" asp-items="@Model.Input.CompanyList" class="form-select">
+                            <option disabled selected>-Select Company-</option>
+                        </Select>
+                    </div>
                     <div class="mb-3">
                         <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
                     </div>
