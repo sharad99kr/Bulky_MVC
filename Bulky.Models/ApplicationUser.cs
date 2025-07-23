@@ -11,7 +11,7 @@ namespace Bulky.Models
     public class ApplicationUser: IdentityUser //we see [Discriminator] column added by default. Its value help to identify if user is Application user or Identity User
     {
         [Required]
-        public int Name { get; set; }
+        public string Name { get; set; }
         public string? StreetAddress { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
