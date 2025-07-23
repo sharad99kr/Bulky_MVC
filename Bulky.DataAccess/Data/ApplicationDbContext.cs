@@ -26,6 +26,12 @@ namespace Bulky.DataAccess.Data
                 new Category { Id = 3, Name = "History", DisplayOrder = 3 }
                 );
 
+            modelBuilder.Entity<Company>().HasData(
+                new Company { Id = 1, Name = "Tech Soln", StreetAddress = "123 tech street", City="Tech City",PostalCode="121121",State="FL",PhoneNumber="1231231234" },
+                new Company { Id = 2, Name = "BI Soln", StreetAddress = "456 tech street", City = "Tech City", PostalCode = "121122", State = "MX", PhoneNumber = "1231231234" },
+                new Company { Id = 3, Name = "Data Soln", StreetAddress = "789 tech street", City = "Tech City", PostalCode = "121123", State = "OH", PhoneNumber = "1231231234" }
+                );
+
             modelBuilder.Entity<Product>().HasData(
                     new Product {
                                     Id = 1,
