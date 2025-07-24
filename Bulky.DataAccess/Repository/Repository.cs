@@ -50,9 +50,13 @@ namespace Bulky.DataAccess.Repository
         }
 
 		
-		public IEnumerable<T> GetAll(string? includeProperties = null) { //If someone provides Category or CategryId based on that we can build include properties
+		public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter, string? includeProperties = null) { //If someone provides Category or CategryId based on that we can build include properties
 			IQueryable<T> query = dbSet;
-			if(!string.IsNullOrEmpty(includeProperties)) {
+			if(filter != null) {
+                query = query.Where(filter);
+            }
+            
+            if(!string.IsNullOrEmpty(includeProperties)) {
 				foreach(var propertyProp in includeProperties
 					.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries )) { 
 					//we are running loop because we can expect more than one include property in the string
