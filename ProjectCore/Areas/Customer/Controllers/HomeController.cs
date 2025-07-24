@@ -41,9 +41,16 @@ namespace ProjectCore.Areas.Customer.Controllers
             //ClaimsIdentity contains the unique user id. Above lines are default ways provided to access the user ID 
             cart.ApplicationUserId = userId;
 
-            unitOfWork.ShoppingCart.Add(cart);
-            unitOfWork.Save();
+            ShoppingCart cartFromDb = unitOfWork.ShoppingCart.Get(u=>u.ApplicationUserId == userId && 
+                                                                u.ProductId == cart.ProductId);
+            if(cartFromDb != null) {
+                cartFromDb.Count += cart.Count;
+                unitOfWork.ShoppingCart.Update(cartFromDb);
+            } else {
+                unitOfWork.ShoppingCart.Add(cart);
+            }
 
+            unitOfWork.Save();
             return RedirectToAction(nameof(Index));// nameof gives list of all action methods in a class. This helps to avoid any error in naming
         }
 
