@@ -46,10 +46,12 @@ namespace ProjectCore.Areas.Customer.Controllers
             if(cartFromDb != null) {
                 cartFromDb.Count += cart.Count;
                 unitOfWork.ShoppingCart.Update(cartFromDb);
+                //NOTE: By default entity framework core track any item retrieved from db and save them on modification even though we did not save it explicitely
+                //here even if commit the update operation, the count will be updated in DB. The fix is tracked = false in IRepository
             } else {
                 unitOfWork.ShoppingCart.Add(cart);
             }
-
+            TempData["success"] = "Cart updated successfully";
             unitOfWork.Save();
             return RedirectToAction(nameof(Index));// nameof gives list of all action methods in a class. This helps to avoid any error in naming
         }

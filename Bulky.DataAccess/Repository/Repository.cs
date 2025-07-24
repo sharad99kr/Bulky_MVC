@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Linq.Expressions;
 using Bulky.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Bulky.DataAccess.Repository
 {
@@ -27,18 +28,26 @@ namespace Bulky.DataAccess.Repository
 			dbSet.Add(entity);
 		}
 
-		public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null) {
-			IQueryable<T> query = dbSet;
-			query = query.Where(filter);
-			if(!string.IsNullOrEmpty(includeProperties)) {
-				foreach(var propertyProp in includeProperties
-					.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-					//we are running loop because we can expect more than one include property in the string
-					query = query.Include(propertyProp);
-				}
-			}
-			return query.FirstOrDefault();
-		}
+		public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false) {
+
+			IQueryable<T> query;
+
+            if(tracked) {
+                query = dbSet;
+            } else {
+                query = dbSet.AsNoTracking();
+            }
+
+            query = query.Where(filter);
+            if(!string.IsNullOrEmpty(includeProperties)) {
+                foreach(var propertyProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
+                    //we are running loop because we can expect more than one include property in the string
+                    query = query.Include(propertyProp);
+                }
+            }
+            return query.FirstOrDefault();
+        }
 
 		
 		public IEnumerable<T> GetAll(string? includeProperties = null) { //If someone provides Category or CategryId based on that we can build include properties
