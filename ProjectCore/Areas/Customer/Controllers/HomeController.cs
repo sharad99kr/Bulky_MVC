@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Bulky.Models;
 using Bulky.DataAccess.Repository.IRepository;
+using System.Security.Claims;
 
 namespace ProjectCore.Areas.Customer.Controllers
 {
@@ -33,7 +34,20 @@ namespace ProjectCore.Areas.Customer.Controllers
 			return View(cart);
 		}
 
-		public IActionResult Privacy()
+        [HttpPost]
+        public IActionResult Details(ShoppingCart cart) {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            //ClaimsIdentity contains the unique user id. Above lines are default ways provided to access the user ID 
+            cart.ApplicationUserId = userId;
+
+            unitOfWork.ShoppingCart.Add(cart);
+            unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));// nameof gives list of all action methods in a class. This helps to avoid any error in naming
+        }
+
+        public IActionResult Privacy()
         {
             return View();
         }
