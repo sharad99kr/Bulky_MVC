@@ -13,6 +13,7 @@ using System.Security.Claims;
 namespace ProjectCore.Areas.Admin.Controllers
 {
 	[Area("Admin")]
+	[Authorize]
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork _unitOfWork;
@@ -55,6 +56,16 @@ namespace ProjectCore.Areas.Admin.Controllers
 			_unitOfWork.Save();
 			TempData["success"] = "Order Details Updated Successfully";
 			return RedirectToAction(nameof(Details), new { orderId = orderHeaderFromDb.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult StartProcessing() {
+            
+            _unitOfWork.OrderHeader.UpdateStatus(orderVM.OrderHeader.Id, SD.StatusInProcess);
+            _unitOfWork.Save();
+            TempData["success"] = "Order Details Updated Successfully";
+            return RedirectToAction(nameof(Details), new { orderId = orderVM.OrderHeader.Id });
         }
 
         #region API CALLS
