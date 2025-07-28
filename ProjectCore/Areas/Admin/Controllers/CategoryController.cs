@@ -8,7 +8,7 @@ using Bulky.Utility;
 namespace ProjectCore.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = SD.Role_Admin)]
     //authorize can be applied globally on the whole class or on individual action methods
     public class CategoryController : Controller
     {
