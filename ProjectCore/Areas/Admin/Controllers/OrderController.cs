@@ -68,8 +68,25 @@ namespace ProjectCore.Areas.Admin.Controllers
             return RedirectToAction(nameof(Details), new { orderId = orderVM.OrderHeader.Id });
         }
 
-        #region API CALLS
-        [HttpGet]
+		[HttpPost]
+		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+		public IActionResult ShipOrder() {
+			var orderHeaderFromDb = _unitOfWork.OrderHeader.Get(u => u.Id == orderVM.OrderHeader.Id);
+			orderHeaderFromDb.TrackingNumber = orderVM.OrderHeader.TrackingNumber;
+			orderHeaderFromDb.Carrier= orderVM.OrderHeader.Carrier;
+			orderHeaderFromDb.OrderStatus= SD.StatusShipped;
+			orderHeaderFromDb.ShippingDate=DateTime.Now;
+			if(orderHeaderFromDb.PaymentStatus == SD.PaymentStatusDelayedPayment) {
+				orderHeaderFromDb.PaymentDueDate=DateOnly.FromDateTime(DateTime.Now.AddDays(30));
+			}
+			_unitOfWork.OrderHeader.Update(orderHeaderFromDb);
+			_unitOfWork.Save();
+			TempData["success"] = "Order Shipped Successfully";
+			return RedirectToAction(nameof(Details), new { orderId = orderVM.OrderHeader.Id });
+		}
+
+		#region API CALLS
+		[HttpGet]
 		public IActionResult GetAll(string status) {
 			IEnumerable<OrderHeader> objOrderHeaders;
 			
