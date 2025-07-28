@@ -29,6 +29,14 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+//sessions doesn't come by default in the basic project. It's configuration needs following setup
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options => {
+    options.IdleTimeout=TimeSpan.FromMinutes(100);
+    options.Cookie.HttpOnly= true;
+    options.Cookie.IsEssential= true;
+});
+
 builder.Services.AddRazorPages();//we need to notify when razor pages are present in the project(i.e. Identity pages)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
@@ -48,6 +56,7 @@ StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey"
 app.UseRouting();
 app.UseAuthentication();//basically checking if user name and password is valid
 app.UseAuthorization();//access to pages is restricted by roles
+app.UseSession();//access to configured session
 app.MapRazorPages();//this will make sure rounting is added to map the razor pages
 app.MapControllerRoute(
     name: "default",

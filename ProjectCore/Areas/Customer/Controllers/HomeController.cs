@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Bulky.Models;
 using Bulky.DataAccess.Repository.IRepository;
 using System.Security.Claims;
+using Bulky.Utility;
 
 namespace ProjectCore.Areas.Customer.Controllers
 {
@@ -46,13 +47,18 @@ namespace ProjectCore.Areas.Customer.Controllers
             if(cartFromDb != null) {
                 cartFromDb.Count += cart.Count;
                 unitOfWork.ShoppingCart.Update(cartFromDb);
+                unitOfWork.Save();
                 //NOTE: By default entity framework core track any item retrieved from db and save them on modification even though we did not save it explicitely
                 //here even if commit the update operation, the count will be updated in DB. The fix is tracked = false in IRepository
             } else {
                 unitOfWork.ShoppingCart.Add(cart);
+                unitOfWork.Save();
+                //setting cart items count in session
+                int countOfItemsInCart = unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId).Count();
+                HttpContext.Session.SetInt32(SD.SessionCart, countOfItemsInCart);
             }
             TempData["success"] = "Cart updated successfully";
-            unitOfWork.Save();
+            
             return RedirectToAction(nameof(Index));// nameof gives list of all action methods in a class. This helps to avoid any error in naming
         }
 
