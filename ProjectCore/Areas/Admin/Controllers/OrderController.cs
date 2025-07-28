@@ -3,8 +3,10 @@ using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using Bulky.Models.ViewModels;
 using Bulky.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Climate;
 using System.Diagnostics;
 
 namespace ProjectCore.Areas.Admin.Controllers
@@ -14,6 +16,9 @@ namespace ProjectCore.Areas.Admin.Controllers
 	{
 		private readonly IUnitOfWork _unitOfWork;
 
+		[BindProperty]
+		public OrderVM orderVM { get; set; }
+
 		public OrderController(IUnitOfWork unitOfWork) {
 			_unitOfWork = unitOfWork;
 		}
@@ -22,15 +27,37 @@ namespace ProjectCore.Areas.Admin.Controllers
 		}
 
 		public IActionResult Details(int orderId) {
-			OrderVM orderVM = new OrderVM() {
+			 orderVM = new OrderVM() {
 				OrderHeader=_unitOfWork.OrderHeader.Get(u=>u.Id==orderId, includeProperties: "ApplicationUser"),
 				OrderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product"),
 			};
 			return View(orderVM);
 		}
 
-		#region API CALLS
-		[HttpGet]
+		[HttpPost]
+		[Authorize(Roles =SD.Role_Admin+","+SD.Role_Employee)]
+        public IActionResult UpdateOrderDetail() {
+			var orderHeaderFromDb = _unitOfWork.OrderHeader.Get(u => u.Id == orderVM.OrderHeader.Id);
+            orderHeaderFromDb.Name= orderVM.OrderHeader.Name; ;
+            orderHeaderFromDb.PhoneNumber= orderVM.OrderHeader.PhoneNumber;
+            orderHeaderFromDb.StreetAddress= orderVM.OrderHeader.StreetAddress;
+            orderHeaderFromDb.City= orderVM.OrderHeader.City;
+            orderHeaderFromDb.State= orderVM.OrderHeader.State;
+            orderHeaderFromDb.PostalCode= orderVM.OrderHeader.PostalCode;
+			if(!string.IsNullOrEmpty(orderVM.OrderHeader.Carrier)) {
+                orderHeaderFromDb.Carrier= orderVM.OrderHeader.Carrier;
+            }
+            if(!string.IsNullOrEmpty(orderVM.OrderHeader.TrackingNumber)) {
+                orderHeaderFromDb.TrackingNumber = orderVM.OrderHeader.TrackingNumber;
+            }
+			_unitOfWork.OrderHeader.Update(orderHeaderFromDb);
+			_unitOfWork.Save();
+			TempData["success"] = "Order Details Updated Successfully";
+			return RedirectToAction(nameof(Details), new { orderId = orderHeaderFromDb.Id });
+        }
+
+        #region API CALLS
+        [HttpGet]
 		public IActionResult GetAll(string status) {
 			IEnumerable<OrderHeader> objOrderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList();
 			switch(status) {
