@@ -21,6 +21,14 @@ namespace ProjectCore.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if(claim != null) {
+                int countOfItemsInCart = unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value).Count();
+                HttpContext.Session.SetInt32(SD.SessionCart, countOfItemsInCart);
+            }
+
             IEnumerable<Product> productsList = unitOfWork.Product.GetAll(includeProperties: "Category");
             return View(productsList);
         }
