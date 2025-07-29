@@ -43,7 +43,7 @@ namespace Bulky.DataAccess.DbInitializer
 
                 //create  users as well
                 _userManager.CreateAsync(new ApplicationUser {
-                    UserName="admin@sharad",
+                    UserName= "admin@sharad.com",
                     Email= "admin@sharad.com",
                     Name ="Sharad Kumar",
                     PhoneNumber="1231231234",
