@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Bulky.Utility;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe;
+using Bulky.DataAccess.DbInitializer;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,8 @@ builder.Services.AddSession(options => {
     options.Cookie.IsEssential= true;
 });
 
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
 builder.Services.AddRazorPages();//we need to notify when razor pages are present in the project(i.e. Identity pages)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
@@ -63,9 +66,17 @@ app.UseRouting();
 app.UseAuthentication();//basically checking if user name and password is valid
 app.UseAuthorization();//access to pages is restricted by roles
 app.UseSession();//access to configured session
+SeedDatabase();//calling initialize of database when application starts using scope
 app.MapRazorPages();//this will make sure rounting is added to map the razor pages
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+void SeedDatabase() {
+    using(var scope = app.Services.CreateScope()) {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitializer.Initialize();
+    }
+}
