@@ -29,6 +29,12 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+//facebook login configuration
+builder.Services.AddAuthentication().AddFacebook(options => {
+    options.AppId = "1303797191312940";
+    options.AppSecret = "1f0baef726e3a8b183cd0258295d4318";
+});
+
 //sessions doesn't come by default in the basic project. It's configuration needs following setup
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options => {
