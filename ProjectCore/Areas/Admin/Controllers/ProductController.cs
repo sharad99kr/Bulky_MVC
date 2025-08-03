@@ -76,18 +76,18 @@ namespace ProjectCore.Areas.Admin.Controllers
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); //we are providing new name to file + preserving the extension
                     string productPath = Path.Combine(wwwRootPath, @"images\product");
 
-                    if(!string.IsNullOrEmpty(productVM.Product.ImageUrl)) {
-						// delete old image if any
-						string oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
+     //               if(!string.IsNullOrEmpty(productVM.Product.ImageUrl)) {
+					//	// delete old image if any
+					//	string oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
 
-                        if(System.IO.File.Exists(oldImagePath)) { 
-                            System.IO.File.Delete(oldImagePath);
-                        }
-					}
+     //                   if(System.IO.File.Exists(oldImagePath)) { 
+     //                       System.IO.File.Delete(oldImagePath);
+     //                   }
+					//}
                     using(var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create)) {
                         file.CopyTo(fileStream);
                     }
-                    productVM.Product.ImageUrl = @"\images\product\" + fileName;
+                    //productVM.Product.ImageUrl = @"\images\product\" + fileName;
                 }
 
                 if(productVM.Product.Id == 0) {
@@ -143,12 +143,12 @@ namespace ProjectCore.Areas.Admin.Controllers
                 return Json(new {success = false,message = "Error while deleting"});
             }
 
-            var oldImagePath=Path.Combine(webHostEnvironment.WebRootPath,
-                                productToBeDeleted.ImageUrl.TrimStart('\\'));
+            //var oldImagePath=Path.Combine(webHostEnvironment.WebRootPath,
+            //                    productToBeDeleted.ImageUrl.TrimStart('\\'));
 
-            if(System.IO.File.Exists(oldImagePath)) { 
-                System.IO.File.Delete(oldImagePath);
-            }
+            //if(System.IO.File.Exists(oldImagePath)) { 
+            //    System.IO.File.Delete(oldImagePath);
+            //}
 
             unitOfWork.Product.Remove(productToBeDeleted);
             unitOfWork.Save();
