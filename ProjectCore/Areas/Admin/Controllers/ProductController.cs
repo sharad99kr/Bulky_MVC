@@ -172,12 +172,17 @@ namespace ProjectCore.Areas.Admin.Controllers
                 return Json(new {success = false,message = "Error while deleting"});
             }
 
-            //var oldImagePath=Path.Combine(webHostEnvironment.WebRootPath,
-            //                    productToBeDeleted.ImageUrl.TrimStart('\\'));
+			string productPath = Path.Combine("images", "product", "product-" + id);
+			string finalPath=Path.Combine(webHostEnvironment.WebRootPath, productPath);
 
-            //if(System.IO.File.Exists(oldImagePath)) { 
-            //    System.IO.File.Delete(oldImagePath);
-            //}
+            if(Directory.Exists(finalPath)) {
+                string[] filePaths = Directory.GetFiles(finalPath);
+                foreach (var filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                Directory.Delete(finalPath);
+            }
 
             unitOfWork.Product.Remove(productToBeDeleted);
             unitOfWork.Save();
