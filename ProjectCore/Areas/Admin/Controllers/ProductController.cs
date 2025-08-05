@@ -139,8 +139,26 @@ namespace ProjectCore.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        #region API CALLS
-        [HttpGet]
+        public IActionResult DeleteImage(int imageId) {
+            var imageToBeDeleted = unitOfWork.ProductImage.Get(u => u.Id == imageId);
+            int productId = imageToBeDeleted.ProductId;
+            if(imageToBeDeleted != null) {
+                if(!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl)) {
+                    var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath,
+                        imageToBeDeleted.ImageUrl.TrimStart('\\'));
+                    if(System.IO.File.Exists(oldImagePath)) {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+                unitOfWork.ProductImage.Remove(imageToBeDeleted);
+                unitOfWork.Save();
+				TempData["success"] = "Deleted successfully!";
+			}
+            return RedirectToAction(nameof(Upsert),new {id=productId});
+        }
+
+		#region API CALLS
+		[HttpGet]
         public IActionResult GetAll() {
             List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return Json(new { data = objProductList });
