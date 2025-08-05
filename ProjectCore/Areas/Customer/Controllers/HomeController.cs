@@ -21,15 +21,13 @@ namespace ProjectCore.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            
-
-            IEnumerable<Product> productsList = unitOfWork.Product.GetAll(includeProperties: "Category");
+            IEnumerable<Product> productsList = unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages"); //we can pass multiple include properties separated by commas
             return View(productsList);
         }
 
 		public IActionResult Details(int productId) {
             ShoppingCart cart = new() {
-                Product = unitOfWork.Product.Get(u => u.Id == productId, includeProperties: "Category"),
+                Product = unitOfWork.Product.Get(u => u.Id == productId, includeProperties: "Category,ProductImages"),
                 Count = 1,
                 ProductId = productId
             };
