@@ -1,12 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using Bulky.DataAccess.Data;
+using Bulky.DataAccess.DbInitializer;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.Repository.IRepository;
-using Microsoft.AspNetCore.Identity;
 using Bulky.Utility;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
+using ProjectCore.Configuration;
 using Stripe;
-using Bulky.DataAccess.DbInitializer;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +50,11 @@ builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddRazorPages();//we need to notify when razor pages are present in the project(i.e. Identity pages)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+//AI services
+builder.Services.AddAIServices(builder.Configuration);
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
