@@ -1,6 +1,6 @@
 ﻿namespace ProjectCore.Services.AI
 {
-    public class OpenAIService
+    public class AzureOpenAIService
     {
     }
 }
