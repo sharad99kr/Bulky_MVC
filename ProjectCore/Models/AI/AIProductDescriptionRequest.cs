@@ -11,10 +11,10 @@
     //Input to the Product Description generator AI Service
     public class AIProductDescriptionRequest
     {
-        public required string ProductName { get; set; }
-        public required string Category { get; set; }
-        public  string? Author { get; set; }
-        public DescriptionTone Tone { get; set; } = DescriptionTone.Professional;
-        public int MaxSentences { get; set; } = 3;
+        public required string ProductName { get; init; }
+        public required string Category { get; init; }
+        public  string? Author { get; init; }
+        public DescriptionTone Tone { get; init; } = DescriptionTone.Professional;
+        public int MaxSentences { get; init; } = 3;
     }
 }
