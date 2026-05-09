@@ -14,9 +14,13 @@ namespace ProjectCore.Configuration
                 
                 //Bind Semantic Kernel with Azure OpenAI
                 var azureConfig = configuration.GetSection(AzureOpenAISettings.SectionName)
-                                    .Get<AzureOpenAISettings>();
-                
-                services.AddKernel().AddAzureOpenAIChatCompletion(
+                                    .Get<AzureOpenAISettings>() ?? 
+                                    throw new InvalidOperationException(
+                                        "AzureOpenAI configuration section is missing. " +
+                                        "Check appsettings.json and User Secrets.");
+
+                var kernelBuilder = services.AddKernel();
+                kernelBuilder.AddAzureOpenAIChatCompletion(
                                     deploymentName: azureConfig.DeploymentName,
                                     endpoint: azureConfig.Endpoint,
                                     apiKey: azureConfig.ApiKey);
