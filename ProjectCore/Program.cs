@@ -13,7 +13,11 @@ using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 //when we add something to service class we are adding it to dependency injection
 //and telling the application to do this configuration whenever it is called for implementation
@@ -74,6 +78,10 @@ app.UseAuthorization();//access to pages is restricted by roles
 app.UseSession();//access to configured session
 SeedDatabase();//calling initialize of database when application starts using scope
 app.MapRazorPages();//this will make sure rounting is added to map the razor pages
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");

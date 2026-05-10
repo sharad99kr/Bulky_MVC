@@ -6,6 +6,7 @@ using ProjectCore.Services.AI;
 namespace ProjectCore.Controllers
 {
     [Authorize(Roles = "Admin")]
+    [Route("AI")]
     public class AIController : Controller
     {
         private readonly ILogger<AIController> _logger;
@@ -18,7 +19,8 @@ namespace ProjectCore.Controllers
 
         //POST : /AI/GenerateDescription
         //This endpoint receives product details and returns an AI-generated description
-        [HttpPost]
+        [HttpPost("GenerateDescription")]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> GenerateDescription(
             [FromBody] AIProductDescriptionRequest request,
             CancellationToken ct) {
@@ -47,7 +49,7 @@ namespace ProjectCore.Controllers
         }
 
         //GET : /AI/GetTones - populates the tone options in the UI dropdown
-        [HttpGet]
+        [HttpGet("GetTones")]
         public IActionResult GetTones() {
             var tones = _productAIService.GetAvailableTones();
             return Ok(tones);
