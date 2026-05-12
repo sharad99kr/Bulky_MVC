@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.Runtime.InteropServices;
 
 namespace Bulky.Models
 {
@@ -54,5 +55,24 @@ namespace Bulky.Models
 
         [ValidateNever]
         public List<ProductImage> ProductImages { get; set; }
+
+        public byte[]? SearchEmbeddingData { get; set; }
+        public DateTime? EmbeddingGeneratedAt { get; set; } = DateTime.Now;
+
+        [NotMapped]
+        public float[]? SearchEmbedding {
+            get => SearchEmbeddingData is null ? null :
+                MemoryMarshal.Cast<byte,float>(SearchEmbeddingData).ToArray();
+
+            set {
+                if(value is null) {
+                    SearchEmbeddingData = null;
+                    return;
+                }
+                SearchEmbeddingData = MemoryMarshal.AsBytes(value.AsSpan()).ToArray();
+            }  
+                
+        }
+
     }
 }
