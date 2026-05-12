@@ -76,6 +76,11 @@ app.UseRouting();
 app.UseAuthentication();//basically checking if user name and password is valid
 app.UseAuthorization();//access to pages is restricted by roles
 app.UseSession();//access to configured session
+//running migrations at the start of application to make sure database is up to date with the latest changes in code. This is not recommended for production environment but can be used in development environment for ease of use
+using(var scope = app.Services.CreateScope()) {
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 SeedDatabase();//calling initialize of database when application starts using scope
 app.MapRazorPages();//this will make sure rounting is added to map the razor pages
 app.MapControllerRoute(
