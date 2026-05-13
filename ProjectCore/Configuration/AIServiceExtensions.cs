@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using ProjectCore.Models.AI;
 using ProjectCore.Services.AI;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 namespace ProjectCore.Configuration
 {
@@ -24,12 +25,20 @@ namespace ProjectCore.Configuration
                                     deploymentName: azureConfig.DeploymentName,
                                     endpoint: azureConfig.Endpoint,
                                     apiKey: azureConfig.ApiKey);
+            
+                #pragma warning disable SKEXP0010
+                kernelBuilder.AddAzureOpenAIEmbeddingGenerator(
+                        deploymentName: "text-embedding-3-small",
+                                        endpoint: azureConfig.Endpoint,
+                                        apiKey: azureConfig.ApiKey
+                                        );
+                #pragma warning restore SKEXP0010
 
                 //Register AI services(Scoped - one instance per HTTP request)
                 //AzureOpenAIService is the provider - wired to IAIService
                 services.AddScoped<AzureOpenAIService>();
-                services.AddScoped<IAIService>(sp => 
-                                        sp.GetRequiredService<AzureOpenAIService>());
+                    services.AddScoped<IAIService>(sp => 
+                                            sp.GetRequiredService<AzureOpenAIService>());
 
                 //BookAIService is the domain layer - wired to IProductAIService
                 //It receives IAIService via constructor injection(gets AzureOpenAIService) 
@@ -37,6 +46,11 @@ namespace ProjectCore.Configuration
 
                 //Register memory cache for caching AI responses caching
                 services.AddMemoryCache();
+
+                //Register EmbeddingService for generating and caching embeddings
+                services.AddScoped<IEmbeddingService, AzureEmbeddingService>();
+
+                services.AddScoped<ISearchService, ProductSearchService>();
 
                 return services;
             }
