@@ -7,6 +7,6 @@
         Task<float[]> GetEmbeddingAsync(string text, CancellationToken ct=default);
 
         //Generate embeddings for a list of products (Title + descriptions + Category) and store them in the database
-        Task GenerateProductEmbeddingslAsync(IEnumerable<int> productIds, CancellationToken ct=default);
+        Task GenerateProductEmbeddingsAsync(IEnumerable<int> productIds, CancellationToken ct=default);
     }
 }

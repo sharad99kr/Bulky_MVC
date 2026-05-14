@@ -14,7 +14,7 @@ namespace ProjectCore.Services.AI
             return results[0].Vector.ToArray();
         }
 
-        public async Task GenerateProductEmbeddingslAsync(IEnumerable<int> productIds, CancellationToken ct = default) {
+        public async Task GenerateProductEmbeddingsAsync(IEnumerable<int> productIds, CancellationToken ct = default) {
             if(productIds == null || !productIds.Any()) {
                 _logger.LogWarning("No product IDs provided for embedding generation.");
                 return;

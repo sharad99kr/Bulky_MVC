@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Humanizer;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using ProjectCore.Services.AI;
 
 namespace ProjectCore.Areas.Admin.Controllers
 {
@@ -20,11 +21,18 @@ namespace ProjectCore.Areas.Admin.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IConfiguration _configuration;
+        private readonly IEmbeddingService _embeddingService;
 
-        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, IConfiguration configuration) {
+        public ProductController(IUnitOfWork unitOfWork, 
+                                IWebHostEnvironment webHostEnvironment, 
+                                IConfiguration configuration,
+                                IEmbeddingService embeddingService) {
+            
             this.unitOfWork = unitOfWork;
             this.webHostEnvironment = webHostEnvironment;
+            _embeddingService = embeddingService;
             _configuration = configuration;
+
         }
 
         private BlobContainerClient GetBlobContainerClient() {
@@ -72,6 +80,9 @@ namespace ProjectCore.Areas.Admin.Controllers
                     unitOfWork.Product.Update(productVM.Product);
                 }
                 unitOfWork.Save();
+
+                // After saving the product, generate embeddings for it. Fire-and-forget, no need to await
+                _ = _embeddingService.GenerateProductEmbeddingsAsync([ productVM.Product.Id ]);
 
                 if(files != null) {
                     var containerClient = GetBlobContainerClient();
