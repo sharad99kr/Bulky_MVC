@@ -1,13 +1,14 @@
 # 📚 Readify — AI-Powered Book Store
 
-> ASP.NET Core MVC e-commerce application extended with a production-grade AI service layer using Azure OpenAI and Microsoft Semantic Kernel.
-🌐 \*\*Live Demo:\*\* \[Readify](https://readify-eph9gsh4exanaafg.canadacentral-01.azurewebsites.net/)
+ASP.NET Core MVC e-commerce application extended with a production-grade AI service layer using Azure OpenAI and Microsoft Semantic Kernel.
 
-[!\[.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[!\[Azure OpenAI](https://img.shields.io/badge/Azure\_OpenAI-GPT--4o-0078D4?logo=microsoft-azure)](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
-[!\[Semantic Kernel](https://img.shields.io/badge/Semantic\_Kernel-1.75.0-5C2D91)](https://learn.microsoft.com/en-us/semantic-kernel/)
-[!\[ASP.NET Core Identity](https://img.shields.io/badge/Identity-Role--Based\_Auth-green)](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity)
-[!\[Stripe](https://img.shields.io/badge/Payments-Stripe-635BFF?logo=stripe)](https://stripe.com/)
+🌐 **Live Demo:** [readify-eph9gsh4exanaafg.canadacentral-01.azurewebsites.net](https://readify-eph9gsh4exanaafg.canadacentral-01.azurewebsites.net)
+
+!\[.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
+!\[Azure OpenAI](https://img.shields.io/badge/Azure\_OpenAI-GPT--4o-0078D4?logo=microsoft-azure)
+!\[Semantic Kernel](https://img.shields.io/badge/Semantic\_Kernel-1.75.0-5C2D91)
+!\[ASP.NET Core Identity](https://img.shields.io/badge/Identity-Role--Based\_Auth-green)
+!\[Stripe](https://img.shields.io/badge/Payments-Stripe-635BFF?logo=stripe)
 
 \---
 
@@ -144,7 +145,7 @@ All Semantic Kernel wiring, `IOptions<T>` binding, and service registration live
 
 ```bash
 git clone https://github.com/sharad99kr/Bulky\_MVC.git
-cd Bulky
+cd Bulky\_MVC
 ```
 
 **2. Set up the database**
