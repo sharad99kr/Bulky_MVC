@@ -34,11 +34,21 @@ namespace ProjectCore.Configuration
                                         );
                 #pragma warning restore SKEXP0010
 
+                //Resilience Patterns : Exponential Backoff with Jitter for transient fault handling
+                services.AddHttpClient("AzureOpenAI")
+                            .AddStandardResilienceHandler(options => {
+                                options.Retry.MaxRetryAttempts = 3;
+                                options.Retry.Delay = TimeSpan.FromSeconds(2);
+                                options.Retry.UseJitter = true;  // prevents retry storms
+                                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(30);
+                            });
+           
+
                 //Register AI services(Scoped - one instance per HTTP request)
                 //AzureOpenAIService is the provider - wired to IAIService
                 services.AddScoped<AzureOpenAIService>();
                     services.AddScoped<IAIService>(sp => 
-                                            sp.GetRequiredService<AzureOpenAIService>());
+                                    sp.GetRequiredService<AzureOpenAIService>());
 
                 //BookAIService is the domain layer - wired to IProductAIService
                 //It receives IAIService via constructor injection(gets AzureOpenAIService) 
@@ -51,6 +61,8 @@ namespace ProjectCore.Configuration
                 services.AddScoped<IEmbeddingService, AzureEmbeddingService>();
 
                 services.AddScoped<ISearchService, ProductSearchService>();
+
+                
 
                 return services;
             }
