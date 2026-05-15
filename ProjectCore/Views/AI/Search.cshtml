@@ -2,7 +2,7 @@
 
 <div class="container">
 
-    {{- Search Box }}
+    @*Search Box*@ 
     <div class="row pt-3 pb-3">
         <div class="col-12">
             <form asp-controller="AI" asp-action="Search" method="get">
@@ -16,21 +16,22 @@
         </div>
     </div>
 
-    {{- Low Confidence Warning }}
-    @if((bool)(ViewBag.LowConfidence ?? false)) {
+    @*Low Confidence Warning*@ 
+    @if(ViewBag.SearchMode == "semantic" && (bool)(ViewBag.LowConfidence ?? false)) {
         <div class="alert alert-warning">
             Results may not closely match your search — try more specific terms.
         </div>
     }
 
-    {{- Results Header }}
-    <div class="row pb-2">
-        <div class="col-12">
-            <p class="text-muted">Showing semantic results for "<b>@ViewBag.SearchQuery</b>"</p>
+    @*Results Header*@ 
+    @if(ViewBag.SearchQuery != null) {
+        <div class="row pb-2">
+            <div class="col-12">
+                <p class="text-muted">Showing semantic results for "<b>@ViewBag.SearchQuery</b>"</p>
+            </div>
         </div>
-    </div>
-
-    {{- Product Grid — identical to Home Index }}
+    }
+    @* Product Grid — identical to Home Index*@ 
     <div class="row pb-3">
         @foreach(var product in Model) {
             <div class="col-lg-3 col-sm-6">
