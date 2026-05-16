@@ -24,8 +24,12 @@ builder.Services.AddControllersWithViews()
 //when we add something to service class we are adding it to dependency injection
 //and telling the application to do this configuration whenever it is called for implementation
 builder.Services.AddDbContext<Bulky.DataAccess.Data.ApplicationDbContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"), 
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null)));
 
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
