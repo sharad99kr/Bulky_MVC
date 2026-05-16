@@ -2,6 +2,7 @@
 using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ProjectCore.Models.AI;
 using ProjectCore.Services.AI;
 
@@ -99,19 +100,26 @@ namespace ProjectCore.Controllers
 
         // GET /AI/Search?q=cozy+weekend+read — public search endpoint
         [HttpGet("Search")]
+        [EnableRateLimiting("search")]
         [AllowAnonymous]
         public async Task<IActionResult> Search(string q, CancellationToken ct) {
-            
+
             if(string.IsNullOrWhiteSpace(q)) {
-                //TODO Add a toaster with message "Query cannot be empty";
+                TempData["Error"] = "Search query cannot be empty.";
                 return RedirectToAction("Index", "Home");
             }
-            
+
+            if(q.Trim().Length < 3 || q.Trim().Length > 200) {
+                TempData["Error"] = "Search query must be between 3 and 200 characters.";
+                return RedirectToAction("Index", "Home");
+            }
+
             var searchResult = await _searchService.HybridSearchAsync(q, topK: 5, ct);
 
             ViewBag.LowConfidence = searchResult.LowConfidence;
             ViewBag.TopScore = searchResult.TopScore;
             ViewBag.SearchQuery = q;
+            ViewBag.SearchMode = "semantic";
 
             return View(searchResult.Items);
 

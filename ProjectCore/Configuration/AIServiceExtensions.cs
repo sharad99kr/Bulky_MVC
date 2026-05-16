@@ -42,8 +42,10 @@ namespace ProjectCore.Configuration
                                 options.Retry.UseJitter = true;  // prevents retry storms
                                 options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(30);
                             });
-           
 
+
+            //services.AddScoped<IRagEvaluationService, RagEvaluationService>();
+            
                 //Register AI services(Scoped - one instance per HTTP request)
                 //AzureOpenAIService is the provider - wired to IAIService
                 services.AddScoped<AzureOpenAIService>();

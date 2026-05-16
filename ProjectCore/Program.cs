@@ -5,9 +5,11 @@ using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using ProjectCore.Configuration;
 using Stripe;
+using System.Threading.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,8 +57,20 @@ builder.Services.AddRazorPages();//we need to notify when razor pages are presen
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
+//Rate limiting configuration
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter(policyName: "search", options => {
+        options.PermitLimit = 10;
+        options.Window = TimeSpan.FromSeconds(30);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
+    });
+});
+
 //AI services
 builder.Services.AddAIServices(builder.Configuration);
+
+
 
 
 var app = builder.Build();
@@ -75,6 +89,7 @@ StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey"
 app.UseRouting();
 app.UseAuthentication();//basically checking if user name and password is valid
 app.UseAuthorization();//access to pages is restricted by roles
+app.UseRateLimiter();//access to pages is restricted by rate limiter
 app.UseSession();//access to configured session
 //running migrations at the start of application to make sure database is up to date with the latest changes in code. This is not recommended for production environment but can be used in development environment for ease of use
 using(var scope = app.Services.CreateScope()) {
