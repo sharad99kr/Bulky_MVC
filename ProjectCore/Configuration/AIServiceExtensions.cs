@@ -44,13 +44,13 @@ namespace ProjectCore.Configuration
                             });
 
 
-            //services.AddScoped<IRagEvaluationService, RagEvaluationService>();
+                services.AddScoped<IRagEvaluationService, RagEvaluationService>();
             
                 //Register AI services(Scoped - one instance per HTTP request)
                 //AzureOpenAIService is the provider - wired to IAIService
                 services.AddScoped<AzureOpenAIService>();
-                    services.AddScoped<IAIService>(sp => 
-                                    sp.GetRequiredService<AzureOpenAIService>());
+                services.AddScoped<IAIService>(sp => 
+                                sp.GetRequiredService<AzureOpenAIService>());
 
                 //BookAIService is the domain layer - wired to IProductAIService
                 //It receives IAIService via constructor injection(gets AzureOpenAIService) 

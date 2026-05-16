@@ -17,18 +17,21 @@ namespace ProjectCore.Controllers
         private readonly ISearchService _searchService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmbeddingService _embedding;
+        private readonly IRagEvaluationService _ragEvaluationService;
 
         public AIController(ILogger<AIController> logger, 
                                 IProductAIService productAIService, 
                                 IUnitOfWork unitOfWork, 
                                 IEmbeddingService embedding,
-                                ISearchService searchService) {
+                                ISearchService searchService,
+                                IRagEvaluationService ragEvaluationService) {
             
             _logger = logger;
             _productAIService = productAIService;
             _unitOfWork = unitOfWork;
             _embedding = embedding;
-            _searchService=searchService;
+            _searchService = searchService;
+            _ragEvaluationService = ragEvaluationService;
 
         }
 
@@ -115,6 +118,12 @@ namespace ProjectCore.Controllers
             }
 
             var searchResult = await _searchService.HybridSearchAsync(q, topK: 5, ct);
+
+            //Fire and forget logging of search query and results faithfullness for analytics
+            if(searchResult.Items.Count > 0) {
+                var context= searchResult.Items.Select(i => $"{i.Title}: {i.Description}").ToList(); //ToList() forces immediate execution before the fire-and-forget call. If result.Items comes from an EF Core query, the DbContext could be disposed by the time the background task tries to enumerate it, causing a runtime exception.
+                _ = _ragEvaluationService.ScoreFaithfulnessAsync(q, context, ct);
+            }
 
             ViewBag.LowConfidence = searchResult.LowConfidence;
             ViewBag.TopScore = searchResult.TopScore;
