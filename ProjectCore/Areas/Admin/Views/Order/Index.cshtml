@@ -26,10 +26,18 @@
 			break;
 	}
 }
+
+@*Generate embeddings button*@ 
+@*
 <form method="post" asp-controller="AI" asp-action="SeedEmbeddings">
 	@Html.AntiForgeryToken()
 	<button type="submit" class="btn btn-warning">Seed Embeddings</button>
 </form>
+
+*@
+
+
+
 <div class="card shadow border-0 my-4">
 	<div class="card-header bg-secondary bg-gradient ml-0 py-3">
 		<div class="col-12 text-center">
