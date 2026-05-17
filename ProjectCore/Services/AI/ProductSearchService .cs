@@ -1,40 +1,93 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
+using Microsoft.SemanticKernel.ChatCompletion;
 using ProjectCore.Models.AI;
+using System.Linq;
 
 namespace ProjectCore.Services.AI
 {
     public class ProductSearchService : ISearchService
     {
-        private const float LowConfidenceThreshold = 0.75f;
+        private const float LowConfidenceThreshold = 0.4f;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmbeddingService _embeddings;
         private readonly ILogger<ProductSearchService> _logger;
-        public ProductSearchService(IUnitOfWork unitOfWork, IEmbeddingService embeddings, ILogger<ProductSearchService> logger) {
+        private readonly IChatCompletionService _chatCompletionService;
+        public ProductSearchService(IUnitOfWork unitOfWork, 
+            IEmbeddingService embeddings, 
+            ILogger<ProductSearchService> logger, 
+            IChatCompletionService chatCompletionService) {
+
             _unitOfWork = unitOfWork;
             _embeddings = embeddings;
             _logger = logger;
+            _chatCompletionService = chatCompletionService;
         }
 
-        public async Task<SearchResult<Product>> SemanticSearchAsync(string query, int topK = 5, CancellationToken ct = default) {
+        public async Task<string> ExpandQueryAsync(string query, CancellationToken ct) {
+            var prompt = $"""
+                        Expand this book search query into a short descriptive phrase 
+                        that includes genre, mood, and themes. 2-3 sentences max.
+                        Query: {query}
+                        """;
+            // call IChatCompletionService, return the expanded text
             try {
-                var queryVector = await _embeddings.GetEmbeddingAsync(query, ct);
+                var history = new ChatHistory();
+                history.AddUserMessage(prompt);
+
+                var response = await _chatCompletionService.GetChatMessageContentAsync(history, cancellationToken: ct);
+
+                
+
+                _logger.LogInformation("ExpandQuery returned of user {Query}: '{Response}'",query, response.Content);
+                return response.Content; // Return negative score if parsing fails
+
+            } catch(Exception ex) {
+                _logger.LogError(ex, "Error expanding user query");
+                return ""; // Return negative score in case of error
+            }
+        }
+
+        public async Task<SearchResult<Product>> SemanticSearchAsync(string query,
+                                                                        int topK = 5,
+                                                                        bool useQueryExpansion = false,
+                                                                        CancellationToken ct = default) {
+            try {
+
+                var vectorInput = query;
+                if(useQueryExpansion) {
+                    var expanded = await ExpandQueryAsync(query, ct);
+                    vectorInput = string.IsNullOrWhiteSpace(expanded) ? query : expanded;
+                }
+
+                var queryVector = await _embeddings.GetEmbeddingAsync(vectorInput, ct);
+                
 
                 var allProducts = _unitOfWork.Product
                                     .GetAll(includeProperties: "Category,ProductImages")
-                                    .Where(p => p.SearchEmbedding != null)
+                                    .Where(p => p.SearchEmbeddingData != null)
                                     .ToList();
+                
+              
                 var scored = allProducts
-                                    .Select(p => new {
-                                        Product = p,
-                                        Score = CosineSimilarity(queryVector, p.SearchEmbedding!)
-                                    }).OrderByDescending(x => x.Score)
-                                    .Take(topK)
-                                    .ToList();
+                            .Select(p => new {
+                                Product = p,
+                                Score = CosineSimilarity(queryVector, p.SearchEmbedding!)
+                            }).OrderByDescending(x => x.Score)
+                            .ToList(); // don't Take(topK) yet. We need to iterate through all results to determine confidence, which may require looking beyond just the top K if there are a lot of similarly scored items at the top.
 
-                float topScore = scored.FirstOrDefault()?.Score ?? 0;
+                float topScore = scored.ElementAtOrDefault(0)?.Score ?? 0;
+                float secondScore = scored.ElementAtOrDefault(1)?.Score ?? 0;
+                var scoreGap = topScore - secondScore;
+                bool lowConfidence = false;
+                if(topScore < LowConfidenceThreshold ||           // the best match is just too weak regardless of anything else
+                    (topScore < 0.50f && scoreGap < 0.10f) ||     //mediocre score AND the top two results are very close together, so even the best match isn't convincingly better
+                    (topScore < 0.60f && scoreGap < 0.05f)) {     //decent score but the top two results are almost identical in score, so the ranking is basically a coin flip
 
-                bool lowConfidence = topScore < LowConfidenceThreshold; // Threshold for low confidence, can be adjusted
+                    lowConfidence = true;// Threshold for low confidence, can be adjusted
+                }
+
+
                 if(lowConfidence) {
                     _logger.LogWarning("Low confidence in search results for query: {Query}. Top score: {TopScore}", query, topScore);
                 }
@@ -46,7 +99,7 @@ namespace ProjectCore.Services.AI
                                             query, topScore, lowConfidence);
 
                 return new SearchResult<Product> {
-                    Items = scored.Select(x => x.Product).ToList(),
+                    Items = scored.Take(topK).Select(x => x.Product).ToList(),
                     TopScore = topScore,
                     LowConfidence = lowConfidence
                 };
@@ -58,15 +111,28 @@ namespace ProjectCore.Services.AI
 
         }
         IReadOnlyList<Product> KeywordSearch(string query, int topK = 5) {
+            var queryWords = ExtractWordsFromPhrase(query);
             IReadOnlyList<Product> allProducts = _unitOfWork.Product
                                 .GetAll(includeProperties: "Category,ProductImages")
-                                .Where(p => p.Title.Contains(query) || p.Description.Contains(query))
+                                .Where(p => queryWords.Any(q => p.Title.Contains(q) || p.Description.Contains(q)))
                                 .Take(topK)
                                 .ToList();
             return allProducts;
         }
 
-        public async Task<SearchResult<Product>> HybridSearchAsync(string query, int topK = 5, CancellationToken ct = default) {
+        List<string> ExtractWordsFromPhrase(string query) {
+            if(string.IsNullOrWhiteSpace(query))
+                return new List<string>();
+
+            // Split by spaces, remove punctuation, and filter out short words
+            var words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries); 
+            return words.ToList();
+        }
+
+        public async Task<SearchResult<Product>> HybridSearchAsync(string query,
+                                                                        int topK = 5,
+                                                                        bool useQueryExpansion = false,
+                                                                        CancellationToken ct = default) {
 
             IReadOnlyList<Product> keywordResult;
             try {
@@ -78,13 +144,13 @@ namespace ProjectCore.Services.AI
             }
 
             try { 
-                var semanticTask = SemanticSearchAsync(query, topK, ct);
+                var semanticTask = SemanticSearchAsync(query, topK, useQueryExpansion,ct);
                 var semanticResult = await semanticTask;
 
                 //semantic first, then keyword results, and remove duplicates
                 var combined = semanticResult.Items
                                 .Union(keywordResult, ProductIdComparer.Instance)
-                                .Take(topK)
+                                .Take(topK) //take topK after combining and deduping, so we ensure we return up to topK results total, not topK from each method which could result in more than topK total
                                 .ToList();
 
                 //Confidence is based on the semantic search score, if the top score is below the threshold, we consider it low confidence -

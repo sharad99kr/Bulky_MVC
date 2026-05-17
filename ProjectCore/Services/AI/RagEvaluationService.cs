@@ -18,7 +18,10 @@ namespace ProjectCore.Services.AI
                                 You are an expert RAG evaluation judge.
 
                                 USER QUERY:
-                                {query}
+                                Expand this book search query into a short descriptive phrase 
+                                that includes genre, mood, and themes. 2-3 sentences max.
+                                Query: {query}
+                                
 
                                 RETRIEVED CONTEXT:
                                 {contextString}

@@ -105,7 +105,7 @@ namespace ProjectCore.Controllers
         [HttpGet("Search")]
         [EnableRateLimiting("search")]
         [AllowAnonymous]
-        public async Task<IActionResult> Search(string q, CancellationToken ct) {
+        public async Task<IActionResult> Search(string q, bool expand = false, CancellationToken ct = default) {
 
             if(string.IsNullOrWhiteSpace(q)) {
                 TempData["Error"] = "Search query cannot be empty.";
@@ -117,7 +117,7 @@ namespace ProjectCore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var searchResult = await _searchService.HybridSearchAsync(q, topK: 5, ct);
+            var searchResult = await _searchService.HybridSearchAsync(q, topK: 5, expand, ct);
 
             //Fire and forget logging of search query and results faithfullness for analytics
             if(searchResult.Items.Count > 0) {
@@ -129,6 +129,7 @@ namespace ProjectCore.Controllers
             ViewBag.TopScore = searchResult.TopScore;
             ViewBag.SearchQuery = q;
             ViewBag.SearchMode = "semantic";
+            ViewBag.Expanded = expand;
 
             return View(searchResult.Items);
 

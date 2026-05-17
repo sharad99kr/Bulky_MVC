@@ -17,10 +17,16 @@
     </div>
 
     @*Low Confidence Warning*@ 
-    @if(ViewBag.SearchMode == "semantic" && (bool)(ViewBag.LowConfidence ?? false)) {
-        <div class="alert alert-warning">
-            Results may not closely match your search — try more specific terms.
-        </div>
+    @if((bool)(ViewBag.LowConfidence ?? false) && !(bool)(ViewBag.Expanded ?? false)) {
+        <a href="/AI/Search?q=@ViewBag.SearchQuery&expand=true"
+           class="btn btn-outline-warning mt-2">
+            🔍 Results uncertain — Search Harder
+        </a>
+    }
+    @if((bool)(ViewBag.Expanded ?? false)) {
+        <small class="text-muted mt-1 d-block">
+            Showing expanded search results
+        </small>
     }
 
     @*Results Header*@ 
