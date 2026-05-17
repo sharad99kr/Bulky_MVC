@@ -42,9 +42,7 @@ namespace ProjectCore.Services.AI
                     _logger.LogInformation("Category: {Cat}", product.Category?.Name ?? "NULL");
 
                     //Combine Title, Description, and Category to create a rich text representation for embedding
-                    var textToEmbed = $"{product.Title} by {product.Author}. " +
-                               $"Category: {product.Category?.Name}. " +
-                               $"{product.Description}";
+                    var textToEmbed = $"{product.Title} by {product.Author}. Category: {product.Category?.Name}. {product.Description}";
 
                     var embedding = await GetEmbeddingAsync(textToEmbed, ct);
 

@@ -61,9 +61,19 @@ builder.Services.AddRazorPages();//we need to notify when razor pages are presen
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
-//Rate limiting configuration
+//Rate limiting configuration for user semantic search
 builder.Services.AddRateLimiter(options => {
     options.AddFixedWindowLimiter(policyName: "search", options => {
+        options.PermitLimit = 10;
+        options.Window = TimeSpan.FromSeconds(30);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
+    });
+});
+
+//Rate limiting configuration for admin semantic + azure compare search 
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter(policyName: "CompareSearch", options => {
         options.PermitLimit = 10;
         options.Window = TimeSpan.FromSeconds(30);
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;

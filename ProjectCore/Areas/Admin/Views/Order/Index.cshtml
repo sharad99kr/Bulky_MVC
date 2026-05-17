@@ -28,13 +28,23 @@
 }
 
 @*Generate embeddings button*@ 
-@*
+
 <form method="post" asp-controller="AI" asp-action="SeedEmbeddings">
 	@Html.AntiForgeryToken()
 	<button type="submit" class="btn btn-warning">Seed Embeddings</button>
 </form>
 
-*@
+<form method="post" asp-controller="AI" asp-action="SeedAzureSearch">
+	@Html.AntiForgeryToken()
+	<button type="submit" class="btn btn-warning">Seed Azure Search</button>
+</form>
+
+<form method="get" asp-controller="AI" asp-action="CompareSearch">
+	<input type="text" name="q" class="form-control" placeholder="cozy mystery..."/>
+	<button type="submit" class="btn btn-warning">Compare Search</button>
+</form>
+
+
 
 
 

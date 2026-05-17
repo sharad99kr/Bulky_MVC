@@ -1,7 +1,11 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Azure;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes;
+using Bulky.Utility;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using ProjectCore.Models.AI;
 using ProjectCore.Services.AI;
-using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 namespace ProjectCore.Configuration
 {
@@ -64,9 +68,23 @@ namespace ProjectCore.Configuration
 
                 services.AddScoped<ISearchService, ProductSearchService>();
 
-                
+                services.AddScoped<IAzureSearchIndexService, AzureSearchIndexService>();
+
+                //reading azure search AI API key and endpoint from configuration and registering SearchClient and SearchIndexClient
+                var searchConfig = configuration.GetSection(AzureSearchSettings.SectionName)
+                                        .Get<AzureSearchSettings>() ??
+                                        throw new InvalidOperationException(
+                                            "AzureSearch configuration section is missing.");
+
+                services.Configure<AzureSearchSettings>(configuration.GetSection(AzureSearchSettings.SectionName));
+
+                var credential = new AzureKeyCredential(searchConfig.ApiKey);
+                services.AddSingleton(new SearchClient(new Uri(searchConfig.Endpoint), SD.AzureSearchIndexName, credential));
+                services.AddSingleton(new SearchIndexClient(new Uri(searchConfig.Endpoint), credential));
 
                 return services;
             }
     }
+
+    
 }

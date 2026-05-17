@@ -15,7 +15,7 @@ namespace ProjectCore.Services.AI
                                                                         bool useQueryExpansion = false,
                                                                         CancellationToken ct = default);
 
-        //Task<SearchResult<Product>> AzureAISearchAsync(string query, int topK = 5, CancellationToken ct = default);
+        Task<SearchResult<Product>> AzureAISearchAsync(string query, int topK = 5, CancellationToken ct = default);
 
     }
 }

@@ -18,20 +18,21 @@ namespace ProjectCore.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmbeddingService _embedding;
         private readonly IRagEvaluationService _ragEvaluationService;
-
-        public AIController(ILogger<AIController> logger, 
-                                IProductAIService productAIService, 
-                                IUnitOfWork unitOfWork, 
+        private readonly IAzureSearchIndexService _azureSearchIndexService;
+        public AIController(ILogger<AIController> logger,
+                                IProductAIService productAIService,
+                                IUnitOfWork unitOfWork,
                                 IEmbeddingService embedding,
                                 ISearchService searchService,
-                                IRagEvaluationService ragEvaluationService) {
-            
+                                IRagEvaluationService ragEvaluationService,
+                                IAzureSearchIndexService azureSearchIndexService) {
             _logger = logger;
             _productAIService = productAIService;
             _unitOfWork = unitOfWork;
             _embedding = embedding;
             _searchService = searchService;
             _ragEvaluationService = ragEvaluationService;
+            _azureSearchIndexService = azureSearchIndexService;
 
         }
 
@@ -82,10 +83,10 @@ namespace ProjectCore.Controllers
                 var productIds = _unitOfWork
                                     .Product
                                     .GetAll()
-                                    .Where(p => p.SearchEmbeddingData==null) // Only include un embedded products
+                                    //.Where(p => p.SearchEmbeddingData == null) // Only include un embedded products
                                     .Select(p => p.Id)
                                     .ToList();
-                
+
                 if(productIds.Count == 0) {
                     return Ok(new { message = "All products already have embeddings seeded" });
                 }
@@ -97,6 +98,23 @@ namespace ProjectCore.Controllers
 
                 _logger.LogError(ex, "Error seeding product embeddings");
                 return StatusCode(500, new { error = "Failed to seed product embeddings" });
+
+            }
+        }
+
+        [HttpPost("SeedAzureSearch")]
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> SeedAzureSearch(CancellationToken ct = default) {
+
+            try {
+
+                await _azureSearchIndexService.IndexAllProductsAsync(ct);
+                return Ok(new { message = "Azure AI Search index seeded successfully!" });
+
+            } catch(Exception ex) {
+
+                _logger.LogError(ex, "Error seeding Azure AI Search index");
+                return StatusCode(500, new { error = "Failed to seed Azure AI Search index" });
 
             }
         }
@@ -121,7 +139,7 @@ namespace ProjectCore.Controllers
 
             //Fire and forget logging of search query and results faithfullness for analytics
             if(searchResult.Items.Count > 0) {
-                var context= searchResult.Items.Select(i => $"{i.Title}: {i.Description}").ToList(); //ToList() forces immediate execution before the fire-and-forget call. If result.Items comes from an EF Core query, the DbContext could be disposed by the time the background task tries to enumerate it, causing a runtime exception.
+                var context = searchResult.Items.Select(i => $"{i.Title}: {i.Description}").ToList(); //ToList() forces immediate execution before the fire-and-forget call. If result.Items comes from an EF Core query, the DbContext could be disposed by the time the background task tries to enumerate it, causing a runtime exception.
                 _ = _ragEvaluationService.ScoreFaithfulnessAsync(q, context, ct);
             }
 
@@ -133,6 +151,30 @@ namespace ProjectCore.Controllers
 
             return View(searchResult.Items);
 
+        }
+
+
+        // GET /AI/CompareSearch?q=cozy+mystery
+        [HttpGet("CompareSearch")]
+        [EnableRateLimiting("CompareSearch")]
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> CompareSearch(string q, bool expand = false, CancellationToken ct=default) {
+            var sqlResults = await _searchService.HybridSearchAsync(q, topK: 5, expand, ct);
+            var azureResults = await _searchService.AzureAISearchAsync(q, topK: 5, ct);
+
+            return Ok(new {
+                query = q,
+                sqlResults = new {
+                    items = sqlResults.Items.Select(p=>p.Title),
+                    topScore = sqlResults.TopScore,
+                    lowConfidence = sqlResults.LowConfidence
+                },
+                azureResults = new {
+                    items = azureResults.Items.Select(p => p.Title),
+                    topScore = azureResults.TopScore,
+                    lowConfidence = azureResults.LowConfidence
+                }
+            });
         }
     }
 }
