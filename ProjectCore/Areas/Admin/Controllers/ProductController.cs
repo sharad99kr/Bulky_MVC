@@ -22,17 +22,19 @@ namespace ProjectCore.Areas.Admin.Controllers
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IConfiguration _configuration;
         private readonly IEmbeddingService _embeddingService;
+        private readonly IAzureSearchIndexService _azureSearchIndexService;
 
         public ProductController(IUnitOfWork unitOfWork, 
-                                IWebHostEnvironment webHostEnvironment, 
+                                IWebHostEnvironment webHostEnvironment,
                                 IConfiguration configuration,
-                                IEmbeddingService embeddingService) {
-            
+                                IEmbeddingService embeddingService,
+                                IAzureSearchIndexService azureSearchIndexService) {
+
             this.unitOfWork = unitOfWork;
             this.webHostEnvironment = webHostEnvironment;
             _embeddingService = embeddingService;
             _configuration = configuration;
-
+            _azureSearchIndexService = azureSearchIndexService;
         }
 
         private BlobContainerClient GetBlobContainerClient() {
@@ -83,6 +85,7 @@ namespace ProjectCore.Areas.Admin.Controllers
 
                 // After saving the product, generate embeddings for it. Fire-and-forget, no need to await
                 _ = _embeddingService.GenerateProductEmbeddingsAsync([ productVM.Product.Id ]);
+                _ = _azureSearchIndexService.IndexProductAsync([productVM.Product.Id]);
 
                 if(files != null) {
                     var containerClient = GetBlobContainerClient();

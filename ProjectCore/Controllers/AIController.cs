@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using ProjectCore.Models.AI;
 using ProjectCore.Services.AI;
+using System.Diagnostics;
 
 namespace ProjectCore.Controllers
 {
@@ -140,7 +141,7 @@ namespace ProjectCore.Controllers
             //Fire and forget logging of search query and results faithfullness for analytics
             if(searchResult.Items.Count > 0) {
                 var context = searchResult.Items.Select(i => $"{i.Title}: {i.Description}").ToList(); //ToList() forces immediate execution before the fire-and-forget call. If result.Items comes from an EF Core query, the DbContext could be disposed by the time the background task tries to enumerate it, causing a runtime exception.
-                _ = _ragEvaluationService.ScoreFaithfulnessAsync(q, context, ct);
+                _ = _ragEvaluationService.ScoreFaithfulnessAsync(q, context, CancellationToken.None);
             }
 
             ViewBag.LowConfidence = searchResult.LowConfidence;
@@ -159,22 +160,30 @@ namespace ProjectCore.Controllers
         [EnableRateLimiting("CompareSearch")]
         [Authorize(Roles = SD.Role_Admin)]
         public async Task<IActionResult> CompareSearch(string q, bool expand = false, CancellationToken ct=default) {
-            var sqlResults = await _searchService.HybridSearchAsync(q, topK: 5, expand, ct);
-            var azureResults = await _searchService.AzureAISearchAsync(q, topK: 5, ct);
 
-            return Ok(new {
-                query = q,
-                sqlResults = new {
-                    items = sqlResults.Items.Select(p=>p.Title),
-                    topScore = sqlResults.TopScore,
-                    lowConfidence = sqlResults.LowConfidence
-                },
-                azureResults = new {
-                    items = azureResults.Items.Select(p => p.Title),
-                    topScore = azureResults.TopScore,
-                    lowConfidence = azureResults.LowConfidence
-                }
-            });
+            //var sqlTimer = Stopwatch.StartNew();
+            var sqlResults = await _searchService.HybridSearchAsync(q, topK: 5, expand, ct);
+            //sqlTimer.Stop();
+
+            //var azureTimer = Stopwatch.StartNew();
+            var azureResults = await _searchService.AzureAISearchAsync(q, topK: 5, ct);
+            //azureTimer.Stop();
+            
+            //return Ok(new {
+            //    query = q,
+            //    sqlResults = new {
+            //        items = sqlResults.Items.Select(p=>p.Title),
+            //        topScore = sqlResults.TopScore,
+            //        timeTaken = sqlTimer.ElapsedMilliseconds,
+            //        lowConfidence = sqlResults.LowConfidence
+            //    },
+            //    azureResults = new {
+            //        items = azureResults.Items.Select(p => p.Title),
+            //        topScore = azureResults.TopScore,
+            //        timeTaken = azureTimer.ElapsedMilliseconds,
+            //        lowConfidence = azureResults.LowConfidence
+            //    }
+            //});
         }
     }
 }

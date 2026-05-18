@@ -17,10 +17,10 @@ namespace ProjectCore.Services.AI
         private readonly IChatCompletionService _chatCompletionService;
         private readonly SearchClient _searchClient;
         public ProductSearchService(IUnitOfWork unitOfWork,
-            IEmbeddingService embeddings,
-            ILogger<ProductSearchService> logger,
-            IChatCompletionService chatCompletionService,
-            SearchClient searchClient) {
+                                    IEmbeddingService embeddings,
+                                    ILogger<ProductSearchService> logger,
+                                    IChatCompletionService chatCompletionService,
+                                    SearchClient searchClient) {
 
             _unitOfWork = unitOfWork;
             _embeddings = embeddings;
@@ -194,7 +194,7 @@ namespace ProjectCore.Services.AI
                     Size = topK,
                 };
 
-                var response = await _searchClient.SearchAsync<SearchDocument>(query, options, ct);
+                var response = await _searchClient.SearchAsync<SearchDocument>("*", options, ct);
 
                 var ids = new List<int>();
                 float topScore = 0f;

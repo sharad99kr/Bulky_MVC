@@ -11,20 +11,17 @@ namespace ProjectCore.Services.AI
             _chatCompletionService = chatCompletionService;
         }
 
-        public async Task<int> ScoreFaithfulnessAsync(string query, IEnumerable<string> retrievedContext, CancellationToken ct = default) {
-            var contextString = string.Join("\n---\n", retrievedContext);
-            var judgementPrompt =
-                               $"""
+        private string GetJudgementPrompt(string query, string context) {
+
+            string judgementPrompt =
+                                $"""
                                 You are an expert RAG evaluation judge.
 
-                                USER QUERY:
-                                Expand this book search query into a short descriptive phrase 
-                                that includes genre, mood, and themes. 2-3 sentences max.
                                 Query: {query}
                                 
 
                                 RETRIEVED CONTEXT:
-                                {contextString}
+                                {context}
 
                                 Score how well the retrieved context can answer the user query.
                                 Use only this scale — reply with the number only, nothing else:
@@ -35,6 +32,12 @@ namespace ProjectCore.Services.AI
                                 4 = Context largely addresses the query with minor gaps
                                 5 = Context fully and faithfully addresses the query
                                 """;
+            return judgementPrompt;
+        }
+        public async Task<int> ScoreFaithfulnessAsync(string query, IEnumerable<string> retrievedContext, CancellationToken ct = default) {
+            var contextString = string.Join("\n---\n", retrievedContext);
+           
+            var judgementPrompt = GetJudgementPrompt(query, contextString);
 
             try {
                 var history = new ChatHistory();

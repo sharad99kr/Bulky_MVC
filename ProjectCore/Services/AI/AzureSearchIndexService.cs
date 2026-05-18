@@ -4,7 +4,10 @@ using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using Bulky.DataAccess.Repository.IRepository;
+using Bulky.Models;
 using Bulky.Utility;
+using Stripe.Climate;
+using System.Collections.Generic;
 
 namespace ProjectCore.Services.AI
 {
@@ -30,12 +33,22 @@ namespace ProjectCore.Services.AI
             _embedding = embedding;
             _logger = logger;
         }
+
+        public async Task IndexProductAsync(IEnumerable<int> productIds, CancellationToken ct = default) {
+            await EnsureIndexExistsAsync(ct);
+            var products = _unitOfWork.Product.GetAll(p => productIds.Contains(p.Id), includeProperties: "Category").ToList();
+            await GenerateDocumentAndPush(products, ct);
+        }
+
         public async Task IndexAllProductsAsync(CancellationToken ct = default) {
             
             await EnsureIndexExistsAsync(ct);
-            
             var products = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+            await GenerateDocumentAndPush(products, ct);
 
+        }
+
+        private async Task GenerateDocumentAndPush(List<Bulky.Models.Product> products, CancellationToken ct) {
             var documents = new List<SearchDocument>();
 
             foreach(var product in products) {
@@ -69,10 +82,8 @@ namespace ProjectCore.Services.AI
                 _logger.LogInformation("Uploaded {Count} products to Azure Search index successfully.", documents.Count);
             } else {
                 _logger.LogWarning("No documents to index in Azure AI Search.");
-                  
-            }
 
-            
+            }
         }
 
         public async Task EnsureIndexExistsAsync(CancellationToken ct = default) 
