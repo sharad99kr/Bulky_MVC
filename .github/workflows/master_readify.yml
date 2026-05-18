@@ -54,6 +54,9 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_98CF0DABA6824B61BA2E2115605B5A3E }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F4ABF345B90947068EB78208CACC363F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9F34342981DB4F05839807F30DA76334 }}
+          allow-no-subscriptions: true
+      - name: Debug Azure Subscriptions
+        run: az account list --output table
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
