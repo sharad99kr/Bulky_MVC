@@ -161,6 +161,10 @@ namespace ProjectCore.Controllers
         [Authorize(Roles = SD.Role_Admin)]
         public async Task<IActionResult> CompareSearch(string q, bool expand = false, CancellationToken ct=default) {
 
+            return Ok(new {
+                Query = "Currently disabled",
+
+            });
             //var sqlTimer = Stopwatch.StartNew();
             var sqlResults = await _searchService.HybridSearchAsync(q, topK: 5, expand, ct);
             //sqlTimer.Stop();
@@ -184,6 +188,7 @@ namespace ProjectCore.Controllers
             //        lowConfidence = azureResults.LowConfidence
             //    }
             //});
+            
         }
     }
 }
