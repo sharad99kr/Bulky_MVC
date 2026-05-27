@@ -24,22 +24,26 @@ namespace ProjectCore.Configuration
                                         "AzureOpenAI configuration section is missing. " +
                                         "Check appsettings.json and User Secrets.");
 
-                var kernelBuilder = services.AddKernel();
+            services.AddSingleton(sp =>
+            {
+                var kernelBuilder = Kernel.CreateBuilder();
                 kernelBuilder.AddAzureOpenAIChatCompletion(
-                                    deploymentName: azureConfig.DeploymentName,
-                                    endpoint: azureConfig.Endpoint,
-                                    apiKey: azureConfig.ApiKey);
-            
-                #pragma warning disable SKEXP0010
-                kernelBuilder.AddAzureOpenAIEmbeddingGenerator(
-                        deploymentName: "text-embedding-3-small",
-                                        endpoint: azureConfig.Endpoint,
-                                        apiKey: azureConfig.ApiKey
-                                        );
-                #pragma warning restore SKEXP0010
+                    deploymentName: azureConfig.DeploymentName,
+                    endpoint: azureConfig.Endpoint,
+                    apiKey: azureConfig.ApiKey);
 
-                //Resilience Patterns : Exponential Backoff with Jitter for transient fault handling
-                services.AddHttpClient("AzureOpenAI")
+#pragma warning disable SKEXP0010
+                kernelBuilder.AddAzureOpenAIEmbeddingGenerator(
+                    deploymentName: "text-embedding-3-small",
+                    endpoint: azureConfig.Endpoint,
+                    apiKey: azureConfig.ApiKey);
+#pragma warning restore SKEXP0010
+
+                return kernelBuilder.Build();
+            });
+
+            //Resilience Patterns : Exponential Backoff with Jitter for transient fault handling
+            services.AddHttpClient("AzureOpenAI")
                             .AddStandardResilienceHandler(options => {
                                 options.Retry.MaxRetryAttempts = 3;
                                 options.Retry.Delay = TimeSpan.FromSeconds(2);
