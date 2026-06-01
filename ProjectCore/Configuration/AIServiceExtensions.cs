@@ -4,8 +4,13 @@ using Azure.Search.Documents.Indexes;
 using Bulky.Utility;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+using Microsoft.SemanticKernel.Embeddings;
+using Microsoft.SemanticKernel.Memory;
+using ProjectCore.Filters;
 using ProjectCore.Models.AI;
+using ProjectCore.Plugins;
 using ProjectCore.Services.AI;
+using KernelPluginFactory = ProjectCore.Plugins.KernelPluginFactory;
 
 namespace ProjectCore.Configuration
 {
@@ -32,6 +37,7 @@ namespace ProjectCore.Configuration
                     endpoint: azureConfig.Endpoint,
                     apiKey: azureConfig.ApiKey);
 
+                
 #pragma warning disable SKEXP0010
                 kernelBuilder.AddAzureOpenAIEmbeddingGenerator(
                     deploymentName: "text-embedding-3-small",
@@ -39,8 +45,14 @@ namespace ProjectCore.Configuration
                     apiKey: azureConfig.ApiKey);
 #pragma warning restore SKEXP0010
 
+                var logging= sp.GetRequiredService<ILogger<AIFunctionInvocationFilter>>();
+                kernelBuilder.Services.AddSingleton<IFunctionInvocationFilter>(new AIFunctionInvocationFilter(logging));
+
                 return kernelBuilder.Build();
             });
+
+            services.AddScoped<IKernelPluginFactory, KernelPluginFactory>();
+
 
             //Resilience Patterns : Exponential Backoff with Jitter for transient fault handling
             services.AddHttpClient("AzureOpenAI")
