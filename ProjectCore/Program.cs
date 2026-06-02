@@ -84,7 +84,8 @@ builder.Services.AddRateLimiter(options => {
 //AI services
 builder.Services.AddAIServices(builder.Configuration);
 
-
+//MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
 
 var app = builder.Build();
