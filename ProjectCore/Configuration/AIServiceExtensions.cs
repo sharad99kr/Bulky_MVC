@@ -10,6 +10,8 @@ using ProjectCore.Filters;
 using ProjectCore.Models.AI;
 using ProjectCore.Plugins;
 using ProjectCore.Services.AI;
+using Microsoft.Extensions.AI;
+using Microsoft.SemanticKernel.ChatCompletion;
 using KernelPluginFactory = ProjectCore.Plugins.KernelPluginFactory;
 
 namespace ProjectCore.Configuration
@@ -50,6 +52,15 @@ namespace ProjectCore.Configuration
 
                 return kernelBuilder.Build();
             });
+
+            services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(sp => 
+            sp.GetRequiredService<Kernel>()
+            .GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>());
+
+            services.AddSingleton<IChatCompletionService>(sp =>
+            sp.GetRequiredService<Kernel>()
+            .GetRequiredService<IChatCompletionService>());
+
 
             services.AddScoped<IKernelPluginFactory, KernelPluginFactory>();
 

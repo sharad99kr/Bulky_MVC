@@ -9,14 +9,13 @@ namespace ProjectCore.CQRS.Handlers
     public class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, SearchResult<Product>>
     {
         private readonly ISearchService _SearchService;
-        public SearchProductsQueryHandler(ISearchService productSearchService)
-        {
+        public SearchProductsQueryHandler(ISearchService productSearchService) {
             _SearchService = productSearchService;
         }
-        public Task<SearchResult<Product>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
-        {
+        public Task<SearchResult<Product>> Handle(SearchProductsQuery request, CancellationToken cancellationToken) {
             // Call the search service to perform a product search
-            var results = _SearchService.HybridSearchAsync(request.QueryText, request.TopK,request.UserQueryExpansion, cancellationToken);
+            var results = _SearchService.HybridSearchAsync(request.QueryText, request.TopK, request.UserQueryExpansion, cancellationToken);
             return results;
         }
+    }
 }
