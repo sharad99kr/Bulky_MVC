@@ -1,8 +1,11 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Utility;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using ProjectCore.CQRS.Commands;
+using ProjectCore.CQRS.Queries;
 using ProjectCore.Models.AI;
 using ProjectCore.Services.AI;
 using System.Diagnostics;
@@ -14,27 +17,30 @@ namespace ProjectCore.Controllers
     public class AIController : Controller
     {
         private readonly ILogger<AIController> _logger;
-        private readonly IProductAIService _productAIService;
-        private readonly ISearchService _searchService;
+        private readonly IMediator _mediator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmbeddingService _embedding;
         private readonly IRagEvaluationService _ragEvaluationService;
         private readonly IAzureSearchIndexService _azureSearchIndexService;
+        private readonly IProductAIService _productAIService;
+        private readonly ISearchService _searchService;
         public AIController(ILogger<AIController> logger,
-                                IProductAIService productAIService,
+                                IMediator mediator,
                                 IUnitOfWork unitOfWork,
                                 IEmbeddingService embedding,
                                 ISearchService searchService,
                                 IRagEvaluationService ragEvaluationService,
-                                IAzureSearchIndexService azureSearchIndexService) {
+                                IAzureSearchIndexService azureSearchIndexService,
+                                IProductAIService productAIService
+                                ) {
             _logger = logger;
-            _productAIService = productAIService;
+            _mediator = mediator;
             _unitOfWork = unitOfWork;
             _embedding = embedding;
-            _searchService = searchService;
             _ragEvaluationService = ragEvaluationService;
             _azureSearchIndexService = azureSearchIndexService;
-
+            _productAIService = productAIService;
+            _searchService = searchService;
         }
 
         //POST : /AI/GenerateDescription
@@ -49,7 +55,10 @@ namespace ProjectCore.Controllers
                 return BadRequest(ModelState);
             }
 
-            var aiResponse = await _productAIService.GenerateDescriptionAsync(request, ct);
+
+            var aiResponse = await _mediator.Send(
+                new GenerateDescriptionCommand(request), ct);
+
             if(!aiResponse.Success) {
                 _logger.LogError(
                     "Description generation failed for {Product}. Error: {Error}",
@@ -81,19 +90,10 @@ namespace ProjectCore.Controllers
         public async Task<IActionResult> SeedEmbeddings(CancellationToken ct) {
             try {
 
-                var productIds = _unitOfWork
-                                    .Product
-                                    .GetAll()
-                                    //.Where(p => p.SearchEmbeddingData == null) // Only include un embedded products
-                                    .Select(p => p.Id)
-                                    .ToList();
-
-                if(productIds.Count == 0) {
+                var count = await _mediator.Send(new SeedEmbeddingsCommand(), ct);
+                if(count == 0)
                     return Ok(new { message = "All products already have embeddings seeded" });
-                }
-
-                await _embedding.GenerateProductEmbeddingsAsync(productIds, ct);
-                return Ok(new { message = $"Product embeddings seeded for all {productIds.Count}successfully" });
+                return Ok(new { message = $"Product embeddings seeded for all {count} successfully" });
 
             } catch(Exception ex) {
 
@@ -136,7 +136,7 @@ namespace ProjectCore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var searchResult = await _searchService.HybridSearchAsync(q, topK: 5, expand, ct);
+            var searchResult = await _mediator.Send(new SearchProductsQuery(q, TopK: 5, expand), ct);
 
             //Fire and forget logging of search query and results faithfullness for analytics
             if(searchResult.Items.Count > 0) {

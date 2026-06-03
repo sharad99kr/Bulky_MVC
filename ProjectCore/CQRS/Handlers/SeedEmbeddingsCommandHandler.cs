@@ -14,10 +14,13 @@ namespace ProjectCore.CQRS.Handlers
             _embeddingService = embeddingService;
             _unitOfWork = unitOfWork;
         }
-        public async Task<int> Handle(SeedEmbeddingsCommand request, CancellationToken cancellationToken)
-        {
-            // Call the embedding service to seed the embeddings
-            var ids = request.ProductIds?.ToList() ?? _unitOfWork.Product.GetAll().Select(p=>p.Id).ToList();
+        public async Task<int> Handle(SeedEmbeddingsCommand request, CancellationToken cancellationToken) {
+            var ids = request.ProductIds?.ToList()
+                ?? _unitOfWork.Product.GetAll().Select(p => p.Id).ToList();
+
+            if(ids.Count == 0)
+                return 0;
+
             await _embeddingService.GenerateProductEmbeddingsAsync(ids, cancellationToken);
             return ids.Count;
         }
