@@ -7,7 +7,6 @@ namespace ProjectCore.CQRS.Handlers
     public class GetInventoryStatusQueryHandler : IRequestHandler<GetInventoryStatusQuery, InventoryStatusResult>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private const int LowStockThreshold = 10; // Example threshold for low stock
 
         public GetInventoryStatusQueryHandler(IUnitOfWork unitOfWork)
         {
@@ -16,6 +15,9 @@ namespace ProjectCore.CQRS.Handlers
 
         public Task<InventoryStatusResult> Handle(GetInventoryStatusQuery request, CancellationToken cancellationToken)
         {
+            // TODO : Product has no Quantity field.
+            // Real stock tracking will come from the inventory agent
+            // reading OrderDetails or a dedicated StockQuantity column added via migration.
             var products = _unitOfWork.Product.Get(p=>p.Id==request.ProductId);
             if(products == null)
             {
@@ -23,19 +25,17 @@ namespace ProjectCore.CQRS.Handlers
                 
                      request.ProductId,
                      "Product not found",
-                     0,
                      false
                 ));
             }
 
-            // TODO Week 5: Product model has no Quantity property.
+            // TODO : Product model has no Quantity property.
             // Stock tracking will be added when the Inventory domain is built.
             // Returning placeholder values until then.
             return Task.FromResult(new InventoryStatusResult (
                     products.Id,
                     products.Title,
-                     0,
-                     false
+                    false
             ));
         }
     }
