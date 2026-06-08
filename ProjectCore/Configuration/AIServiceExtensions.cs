@@ -109,6 +109,9 @@ namespace ProjectCore.Configuration
                 services.AddSingleton(new SearchClient(new Uri(searchConfig.Endpoint), SD.AzureSearchIndexName, credential));
                 services.AddSingleton(new SearchIndexClient(new Uri(searchConfig.Endpoint), credential));
 
+                //Registering the Chat service 
+                services.AddScoped<IChatService, ChatService>();
+
                 return services;
             }
     }

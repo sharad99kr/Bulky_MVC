@@ -71,6 +71,7 @@ builder.Services.AddRateLimiter(options => {
     });
 });
 
+
 //Rate limiting configuration for admin semantic + azure compare search 
 builder.Services.AddRateLimiter(options => {
     options.AddFixedWindowLimiter(policyName: "CompareSearch", options => {
@@ -78,6 +79,16 @@ builder.Services.AddRateLimiter(options => {
         options.Window = TimeSpan.FromSeconds(30);
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         options.QueueLimit = 0;
+    });
+});
+
+//Rate limiting configuration for user chat 
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter(policyName: "chat", options => {
+        options.PermitLimit = 20;
+        options.Window = TimeSpan.FromMinutes(1);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 2;
     });
 });
 
