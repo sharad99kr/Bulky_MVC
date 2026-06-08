@@ -15,6 +15,6 @@ namespace ProjectCore.CQRS.Handlers
         {
             return _chatService.SendMessageAsync(request.UserMessage, request.History, cancellationToken);
         }
-    {
+    
     }
 }
