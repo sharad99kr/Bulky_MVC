@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div id="chat-widget" class="chat-widget" aria-live="polite">
+    <div class="chat-header">
+        <span class="chat-avatar">📚</span>
+        <span class="chat-title">Readify Assistent</Span>
+            <button id="chat-new" class="chat-new" type="button">New chat</button>
+            <button id="chat-toggle" class="chat-toggle" aria-label="Toggle chat">▾</button>
+    </div>
+
+    <div id="chat-body" class="chat-body">
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-row">
+            <input id="chat-input" type="text"
+                placeholder="Ask about your books or your orders..."
+                maxlength="500"
+                autocomplete="off"
+                aria-label="Chat message input"/>
+                <button id="chat-send" type="button" aria-label="Send message">Send</button>
+        </div>
+
+    </div>
+
+</div>
+
+@@Html.AntiForgeryToken()
