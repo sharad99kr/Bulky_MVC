@@ -5,6 +5,7 @@ namespace ProjectCore.CQRS.Commands
     public record SendMessageCommand
     (
         string UserMessage,
-        IEnumerable<ChatTurn> History
+        Guid? ConversationId,
+        string UserId
     ) : IRequest<ChatResponse>;
 }

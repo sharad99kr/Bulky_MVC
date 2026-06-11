@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using ProjectCore.CQRS.Queries;
+using System.Security.Claims;
 
 namespace ProjectCore.Controllers
 {
@@ -21,20 +23,52 @@ namespace ProjectCore.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("chat")]
-        public async Task<IActionResult> Send([FromBody] ChatRequest request, CancellationToken cancellationToken) {
+        public async Task<IActionResult> Send([FromBody] ChatRequest request,
+                                        CancellationToken cancellationToken) {
 
             if(string.IsNullOrWhiteSpace(request.Message)
                 || request.Message.Length > 500) {
                 return BadRequest(new { error = "Message must be between 1 and 500 characters." });
             }
-            var response = await _mediator.Send(new CQRS.Commands.SendMessageCommand(request.Message, request.History ?? []),
-                                                cancellationToken);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userId == null) {
+                return Unauthorized();
+            }
+
+            var response = await _mediator.Send(
+                new CQRS.Commands.SendMessageCommand(
+                    request.Message,
+                    request.ConversationId,
+                    userId),
+                cancellationToken);
+
             return Ok(response);
         }
-    }
 
-    public record ChatRequest(
-        string Message,
-        IEnumerable<ChatTurn>? History
-    );
+
+        [HttpGet]
+        public async Task<IActionResult> History(
+            [FromQuery] Guid conversationId,
+            CancellationToken ct) {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userId == null) {
+                return Unauthorized();
+            }
+
+            var turns = await _mediator.Send(
+                new GetConversationQuery(
+                    conversationId, userId),
+                ct
+                );
+
+            return Ok(turns);
+        }
+
+        public record ChatRequest(
+            string Message,
+            Guid? ConversationId
+        );
+    }
 }

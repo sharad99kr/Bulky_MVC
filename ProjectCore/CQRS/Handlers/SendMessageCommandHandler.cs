@@ -4,7 +4,8 @@ using ProjectCore.Services.AI;
 
 namespace ProjectCore.CQRS.Handlers
 {
-    public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, ChatResponse>
+    public class SendMessageCommandHandler : 
+        IRequestHandler<SendMessageCommand, ChatResponse>
     {
         private readonly IChatService _chatService;
         public SendMessageCommandHandler(IChatService chatService)
@@ -13,7 +14,11 @@ namespace ProjectCore.CQRS.Handlers
         }
         public Task<ChatResponse> Handle(SendMessageCommand request, CancellationToken cancellationToken)
         {
-            return _chatService.SendMessageAsync(request.UserMessage, request.History, cancellationToken);
+            return _chatService.SendMessageAsync(
+                request.UserMessage, 
+                request.ConversationId,
+                request.UserId,
+                cancellationToken);
         }
     
     }

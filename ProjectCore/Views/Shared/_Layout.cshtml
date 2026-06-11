@@ -114,5 +114,8 @@
     <!-- Razor Section for page-specific JS -->
     @await RenderSectionAsync("Scripts", required: false)
 
+    @await Html.PartialAsync("_ChatWidget")
+    <script src="~/js/chat-widget.js" asp-append-version="true"></script>
+
 </body>
 </html>

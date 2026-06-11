@@ -21,9 +21,11 @@ namespace Bulky.DataAccess.Data
         public DbSet<OrderHeader> OrderHeaders { get; set; }
 		public DbSet<ProductImage> ProductImages { get; set; }
 		public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
+            
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
@@ -136,6 +138,8 @@ namespace Bulky.DataAccess.Data
                         CategoryId = 3,
                     }
                  );
+
+            modelBuilder.Entity<ChatMessage>().HasIndex(m => new { m.ConversationId, m.CreatedAtUtc });
         }
     }
 }

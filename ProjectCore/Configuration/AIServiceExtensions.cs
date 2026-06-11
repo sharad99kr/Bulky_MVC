@@ -1,8 +1,12 @@
 ﻿using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
+using Bulky.DataAccess.Repository;
+using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Utility;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Memory;
@@ -10,8 +14,6 @@ using ProjectCore.Filters;
 using ProjectCore.Models.AI;
 using ProjectCore.Plugins;
 using ProjectCore.Services.AI;
-using Microsoft.Extensions.AI;
-using Microsoft.SemanticKernel.ChatCompletion;
 using KernelPluginFactory = ProjectCore.Plugins.KernelPluginFactory;
 
 namespace ProjectCore.Configuration
@@ -111,6 +113,7 @@ namespace ProjectCore.Configuration
 
                 //Registering the Chat service 
                 services.AddScoped<IChatService, ChatService>();
+                services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
                 return services;
             }
