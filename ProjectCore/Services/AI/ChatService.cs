@@ -151,7 +151,7 @@ namespace ProjectCore.Services.AI
                     sb.AppendLine(
                         $"- {item.Title} by {item.Author} " +
                         $"| Category: {item.Category?.Name ?? "Unknown"} " +
-                        $"| Price: {item.Price:C} " +
+                        $"| Price: {item.Price100:C} " +
                         $"| Description: {item.Description?[..Math.Min(150, item.Description.Length)]}...");
                 }
 

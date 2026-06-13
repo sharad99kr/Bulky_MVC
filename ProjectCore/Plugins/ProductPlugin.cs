@@ -25,7 +25,7 @@ namespace ProjectCore.Plugins
 
             } else {
                 return string.Join("\n", results.Items.Select(p =>
-                        $"{p.Title} by {p.Author} — {p.Price:C} — " +
+                        $"{p.Title} by {p.Author} — {p.Price100:C} — " +
                         $"Category: {p.Category?.Name ?? "Unknown"}"));
             }
         }
