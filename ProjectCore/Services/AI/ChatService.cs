@@ -43,13 +43,19 @@ namespace ProjectCore.Services.AI
                                             GetRecentAsync(resolvedId, userId, count: 6);
 
                 //step 1: RAG context injection
-                var ragContext = await BuildRagContextAsync(userMessage, cancellationToken);
+                var ragSearchData = await BuildRagContextAsync(userMessage, cancellationToken);
 
                 //step 2: build kernel with plugins attached
                 var kernel = _pluginFactory.CreateKernelWithPlugins();
 
                 //step 3: build ChatHistory with system prompt + history
-                var chatHistory = BuildChatHistory(ragContext, storedTurns);
+                if(ragSearchData.ragContext!= null) {
+                    _logger.LogInformation("[Chat] RAG context injected into system prompt: {RagContext}", ragSearchData.ragContext);
+
+                } else {
+                    _logger.LogInformation("[Chat] No RAG context available for this message.");
+                }
+                var chatHistory = BuildChatHistory(ragSearchData.ragContext?? string.Empty, storedTurns);
 
                 //step 4: Add user message as last turn
                 chatHistory.AddUserMessage(userMessage);
@@ -71,19 +77,25 @@ namespace ProjectCore.Services.AI
 
                 // Step 6 — Persist both turns atomically
                 await _chatMessageRepository.SaveTurnsAsync(
-                                        resolvedId,
-                                        userId,
-                                        userMessage,
-                                        responseText,
-                                        tokensUsed:MaxTokenPerTurn,
-                                        fallbackUsed:false);
+                        resolvedId,
+                        userId,
+                        userMessage,
+                        responseText,
+                        tokensUsed:MaxTokenPerTurn,
+                        fallbackUsed:false);
 
                 _logger.LogInformation(
-                    "[Chat] Successfully processed chat message. " +
-                    "Tokens used: {TokensUsed}, " +
-                    "User Message Length: {UserMsgLen}, " +
-                    "Fallback Used: {FallbackUsed}",
-                    MaxTokenPerTurn, userMessage.Length, false);
+                        "[Chat] Turn completed — " +
+                        "UserMsgLen: {UserLen}, " +
+                        "ResponseLen: {RespLen}, " +
+                        "FallbackUsed: {Fallback}, " +
+                        "LowConfidence: {LowConf}, " +
+                        "ConversationId: {ConvId}",
+                        userMessage.Length,
+                        responseText.Length,
+                        false,
+                        ragSearchData.LowConfidence,
+                        resolvedId);
 
                 return new ChatResponse(
                     Message: responseText,
@@ -117,7 +129,7 @@ namespace ProjectCore.Services.AI
             }
         }
 
-        private async Task<string> BuildRagContextAsync(string userMessage, CancellationToken cancellationToken) {
+        private async Task<SearchResultData> BuildRagContextAsync(string userMessage, CancellationToken cancellationToken) {
             
             try {
                 
@@ -129,7 +141,7 @@ namespace ProjectCore.Services.AI
                                             cancellationToken);
                 
                 if(!searchResults.Items.Any()) {
-                    return string.Empty;
+                    return new SearchResultData(null,null);
                 }
 
                 var sb = new StringBuilder();
@@ -146,13 +158,13 @@ namespace ProjectCore.Services.AI
                 if(searchResults.LowConfidence) {
                     sb.AppendLine("NOTE: The relevance of the above results to your query is uncertain.");
                 }
-                return sb.ToString();
+                return new SearchResultData(sb.ToString(), searchResults.LowConfidence);
 
             } catch(Exception ex) {
 
                 _logger.LogError(ex, "[Chat] Error occurred while RAG context build. Continuing without RAG context.");
-                return string.Empty; //non-fatal - we can still proceed with the chat without RAG context
-            
+                return new SearchResultData(null, null);//non-fatal - we can still proceed with the chat without RAG context
+
             }
         }
 
@@ -177,5 +189,7 @@ namespace ProjectCore.Services.AI
             return chatHistory;
         }
     }
-        
+
+    public record SearchResultData(string? ragContext, bool? LowConfidence);
+
 }
