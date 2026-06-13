@@ -13,7 +13,7 @@ namespace ProjectCore.Services.AI
             sb.AppendLine();
 
             // GUARDRAIL 1 — ground answers in retrieved context
-            if(!string.IsNullOrEmpty(ragContext)) {
+            if(!string.IsNullOrWhiteSpace(ragContext)) {
                 sb.AppendLine(
                     "Answer ONLY using the product data below and the tools " +
                     "available to you. Do not make up books, authors, prices, " +
