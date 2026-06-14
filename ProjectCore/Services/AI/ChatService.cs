@@ -56,6 +56,8 @@ namespace ProjectCore.Services.AI
                     _logger.LogInformation("[Chat] No RAG context available for this message.");
                 }
                 var chatHistory = BuildChatHistory(ragSearchData.ragContext?? string.Empty, storedTurns);
+                _logger.LogInformation("[Chat] received history with {Count} messages", chatHistory.Count);
+
 
                 //step 4: Add user message as last turn
                 chatHistory.AddUserMessage(userMessage);
@@ -139,20 +141,38 @@ namespace ProjectCore.Services.AI
                                                 TopK: MaxContextProducts,
                                                 UserQueryExpansion: false),
                                             cancellationToken);
+                _logger.LogInformation("[RAG] Query '{Q}' returned {N} items: {Titles} | TopScore {Score} | LowConf {LC}",
+                                                userMessage,
+                                                searchResults.Items.Count(),
+                                                string.Join(", ", searchResults.Items.Select(i => i.Title)),
+                                                searchResults.TopScore,
+                                                searchResults.LowConfidence);
                 
                 if(!searchResults.Items.Any()) {
+                    _logger.LogWarning("[Chat] RAG context build failed — continuing without context");
                     return new SearchResultData(null,null);
                 }
 
                 var sb = new StringBuilder();
                 sb.AppendLine("PRODUCT CATALOGUE CONTEXT:");
 
+                if(searchResults.LowConfidence) {
+
+                    _logger.LogInformation(
+                        "[Chat] RAG low confidence for query '{Q}' ",userMessage);
+
+                    sb.AppendLine(
+                        "\n[Note: search confidence is low — only use the books above if " +
+                        "they genuinely match the customer's request.]");
+
+                }
+
                 foreach(var item in searchResults.Items) {
                     sb.AppendLine(
                         $"- {item.Title} by {item.Author} " +
                         $"| Category: {item.Category?.Name ?? "Unknown"} " +
                         $"| Price: {item.Price100:C} " +
-                        $"| Description: {item.Description?[..Math.Min(150, item.Description.Length)]}...");
+                        $"| Description: {item.Description ?? "No description available"}");
                 }
 
                 if(searchResults.LowConfidence) {
@@ -180,12 +200,16 @@ namespace ProjectCore.Services.AI
             // storedTurns already limited to 6 by GetRecentAsync, already ordered
             // oldest-first after the DESC + reverse in the repository
             foreach(var turn in storedTurns) {
-            if(turn.Role == "User") {
+                _logger.LogInformation("[Chat] replaying role=[{Role}] len={Len}",
+                        turn.Role, turn.Content.Length);
+                if(turn.Role == "user") {
                     chatHistory.AddUserMessage(turn.Content);
-                } else if(turn.Role == "assistent") {
+                } else if(turn.Role == "assistant") {
                     chatHistory.AddAssistantMessage(turn.Content);
                 }
             }
+            _logger.LogInformation("[Chat] BuildChatHistory returning {Count} messages", chatHistory.Count);
+
             return chatHistory;
         }
     }

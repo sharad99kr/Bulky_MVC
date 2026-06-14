@@ -17,7 +17,7 @@ namespace ProjectCore.Plugins
         [Description("Returns the current status of an order by order ID")]
         public string GetOrderStatus(int orderId) {
             
-            var order = _unitOfWork.OrderHeader.Get(o=>o.Id == orderId, includeProperties:"OrderDetails");
+            var order = _unitOfWork.OrderHeader.Get(o=>o.Id == orderId);
 
             if(order == null) {
                 return $"No order found with ID {orderId}.";
@@ -33,7 +33,7 @@ namespace ProjectCore.Plugins
         public string GetRecentOrders(string email, int count = 3) {
             count = Math.Min(count, 5); //hard cap - no method should return unlimited data/rows
             
-            var orders = _unitOfWork.OrderHeader.GetAll(o => o.ApplicationUser.Email == email, includeProperties: "OrderDetails")
+            var orders = _unitOfWork.OrderHeader.GetAll(o => o.ApplicationUser.Email == email)
                 .OrderByDescending(o => o.OrderDate)
                 .Take(count)
                 .ToList();

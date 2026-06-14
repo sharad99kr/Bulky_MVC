@@ -19,6 +19,7 @@ namespace ProjectCore.Plugins
         public Kernel CreateKernelWithPlugins() {
             var kernelWithPlugins = _kernel.Clone();
             kernelWithPlugins.Plugins.AddFromObject(new OrderPlugin(_unitOfWork));
+            kernelWithPlugins.Plugins.AddFromObject(new ProductPlugin(_searchService));
             return kernelWithPlugins;
         }
     }
