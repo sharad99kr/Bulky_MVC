@@ -14,7 +14,6 @@ using ProjectCore.Filters;
 using ProjectCore.Models.AI;
 using ProjectCore.Plugins;
 using ProjectCore.Services.AI;
-using KernelPluginFactory = ProjectCore.Plugins.KernelPluginFactory;
 
 namespace ProjectCore.Configuration
 {
@@ -63,8 +62,10 @@ namespace ProjectCore.Configuration
             sp.GetRequiredService<Kernel>()
             .GetRequiredService<IChatCompletionService>());
 
+            services.AddTransient<OrderPlugin>();
+            services.AddTransient<ProductPlugin>();
 
-            services.AddScoped<IKernelPluginFactory, KernelPluginFactory>();
+            services.AddScoped<IChatKernelFactory, ChatKernelFactory>();
 
 
             //Resilience Patterns : Exponential Backoff with Jitter for transient fault handling

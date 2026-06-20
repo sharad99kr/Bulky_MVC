@@ -14,7 +14,7 @@ namespace ProjectCore.Services.AI
     {
         private readonly IMediator _mediator;
         private readonly ILogger<ChatService> _logger;
-        private readonly IKernelPluginFactory _pluginFactory;
+        private readonly IChatKernelFactory _chatPluginFactory;
         private readonly IChatMessageRepository _chatMessageRepository;
 
         private const int MaxTokenPerTurn = 500;
@@ -23,10 +23,10 @@ namespace ProjectCore.Services.AI
                     "I'm having trouble connecting to my knowledge base right now. " +
                     "Please try again in a moment, or browse our catalogue directly.";
 
-        public ChatService(IMediator mediator, ILogger<ChatService> logger, IKernelPluginFactory pluginFactory, IChatMessageRepository chatRepository) {
+        public ChatService(IMediator mediator, ILogger<ChatService> logger, IChatKernelFactory pluginFactory, IChatMessageRepository chatRepository) {
             _mediator = mediator;
             _logger = logger;
-            _pluginFactory = pluginFactory;
+            _chatPluginFactory = pluginFactory;
             _chatMessageRepository = chatRepository;
         }
         public async Task<ChatResponse> SendMessageAsync(string userMessage,
@@ -46,7 +46,7 @@ namespace ProjectCore.Services.AI
                 var ragSearchData = await BuildRagContextAsync(userMessage, cancellationToken);
 
                 //step 2: build kernel with plugins attached
-                var kernel = _pluginFactory.CreateKernelWithPlugins();
+                var kernel = _chatPluginFactory.CreateForChat();
 
                 //step 3: build ChatHistory with system prompt + history
                 if(ragSearchData.ragContext!= null) {
