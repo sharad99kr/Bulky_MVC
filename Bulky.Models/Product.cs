@@ -48,6 +48,8 @@ namespace Bulky.Models
 
         public int CategoryId { get; set; }
 
+        public int StockQuantity { get; set; }
+
         //we need a navigation property to category table 'Category' and exclusively has foreign key
         [ForeignKey("CategoryId")]
 		[ValidateNever]

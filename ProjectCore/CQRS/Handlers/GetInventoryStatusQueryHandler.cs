@@ -25,6 +25,7 @@ namespace ProjectCore.CQRS.Handlers
                 
                      request.ProductId,
                      "Product not found",
+                     0,
                      false
                 ));
             }
@@ -35,6 +36,7 @@ namespace ProjectCore.CQRS.Handlers
             return Task.FromResult(new InventoryStatusResult (
                     products.Id,
                     products.Title,
+                    products.StockQuantity, 
                     false
             ));
         }

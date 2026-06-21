@@ -14,6 +14,7 @@ using ProjectCore.Filters;
 using ProjectCore.Models.AI;
 using ProjectCore.Plugins;
 using ProjectCore.Services.AI;
+using ProjectCore.Services.AI.Inventory;
 
 namespace ProjectCore.Configuration
 {
@@ -115,6 +116,9 @@ namespace ProjectCore.Configuration
                 //Registering the Chat service 
                 services.AddScoped<IChatService, ChatService>();
                 services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+
+                //Registering InventoryReader for reading inventory data to be used in RAG scenarios
+                services.AddScoped<IInventoryReader, InventoryReader>();
 
                 return services;
             }
