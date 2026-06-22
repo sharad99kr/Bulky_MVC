@@ -3,12 +3,15 @@ using Bulky.DataAccess.DbInitializer;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Utility;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using ProjectCore.Configuration;
+using ProjectCore.Consumers;
 using Stripe;
+using System.Security.Authentication;
 using System.Threading.RateLimiting;
 
 
@@ -97,6 +100,51 @@ builder.Services.AddAIServices(builder.Configuration);
 
 //MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+
+//MassTransit
+var rabbitHost = builder.Configuration["RabbitMQ:Host"];
+var rabbitVHost = builder.Configuration["RabbitMQ:VHost"];
+var rabbitUser = builder.Configuration["RabbitMQ:Username"];
+var rabbitPassword = builder.Configuration["RabbitMQ:Password"];
+
+builder.Services.AddMassTransit(x => {
+
+    x.AddConsumer<NotificationConsumer>();
+
+    if(string.IsNullOrWhiteSpace(rabbitHost)) {
+
+        // Unit tests / CI — zero infrastructure, in-process publish/subscribe.
+        x.UsingInMemory((context, cfg) => {
+            cfg.ConfigureEndpoints(context);
+        });
+
+    } else {
+        // CloudAMQP RabbitMQ — accessible from local dev and Azure App Service.
+        // TLS is mandatory on the CloudAMQP free tier (amqps:// only).
+        x.UsingRabbitMq((context, cfg) => {
+            cfg.Host(rabbitHost, rabbitVHost, h => {
+                h.Username(rabbitUser);
+                h.Password(rabbitPassword);
+                h.UseSsl(s => s.Protocol = SslProtocols.Tls12);
+            });
+
+            cfg.ReceiveEndpoint("low-stock-queue", e => {
+                // Exponential backoff, 3 retries. After retries are exhausted
+                // MassTransit routes the message to an _error queue —
+                // it is never silently lost.
+                e.UseMessageRetry(r => r.Exponential(
+                    retryLimit: 3,
+                    minInterval: TimeSpan.FromSeconds(1),
+                    maxInterval: TimeSpan.FromSeconds(30),
+                    intervalDelta: TimeSpan.FromSeconds(5)));
+
+                e.ConfigureConsumer<NotificationConsumer>(context);
+            });
+        });
+    }
+});
+
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
