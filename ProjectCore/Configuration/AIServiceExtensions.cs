@@ -1,4 +1,6 @@
 ﻿using Azure;
+using Azure.AI.OpenAI;
+using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Bulky.DataAccess.Repository;
@@ -119,6 +121,25 @@ namespace ProjectCore.Configuration
 
                 //Registering InventoryReader for reading inventory data to be used in RAG scenarios
                 services.AddScoped<IInventoryReader, InventoryReader>();
+                
+                services.AddSingleton<IChatClient>(sp =>
+                {
+                    var config = sp.GetRequiredService<IConfiguration>();
+                    var endpoint = config["AzureOpenAI:Endpoint"]!;
+                    var deploymentName = config["AzureOpenAI:DeploymentName"]!;
+
+                    var apiKey = config["AzureOpenAI:ApiKey"]!;
+                    AzureOpenAIClient azureClient = string.IsNullOrEmpty(apiKey) 
+                        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential()) 
+                        : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+
+                    return azureClient
+                            .GetChatClient(deploymentName)
+                            .AsIChatClient()
+                            .AsBuilder()
+                            .UseFunctionInvocation()
+                            .Build();
+                });
 
                 return services;
             }
