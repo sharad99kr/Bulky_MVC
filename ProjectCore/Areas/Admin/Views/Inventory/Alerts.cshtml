@@ -1,0 +1,25 @@
+﻿@{
+	ViewData["Title"] = "Inventory Alerts";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+	<h2 class="mb-0">Inventory Alerts</h2>
+	<div>
+		<button id="seed-stock" class="btn btn-outline-secondary">Seed demo stock</button>
+		<button id="run-check" class="btn btn-primary">Run inventory check</button>
+	</div>
+</div>
+
+<div id="connection-state" class="text-muted small mb-2">Connecting...</div>
+
+<div id="briefing" class="alert alert-info d-none"></div>
+
+<div id="alert-feed" class="d-flex flex-column gap-2"
+	aria-live="polite" aria-label="Live inventory alerts"></div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+	<script src="~/js/inventory-alerts.js" asp-append-version="true"></script>
+}

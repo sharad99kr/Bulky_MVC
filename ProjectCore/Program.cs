@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using ProjectCore.Configuration;
 using ProjectCore.Consumers;
+using ProjectCore.Hubs;
 using Stripe;
 using System.Security.Authentication;
 using System.Threading.RateLimiting;
@@ -172,6 +173,9 @@ using(var scope = app.Services.CreateScope()) {
 }
 SeedDatabase();//calling initialize of database when application starts using scope
 app.MapRazorPages();//this will make sure rounting is added to map the razor pages
+
+app.MapHub<InventoryAlertHub>("/hubs/inventory-alerts");
+
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");

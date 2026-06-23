@@ -7,10 +7,10 @@ namespace ProjectCore.Consumers
 {
     public class NotificationConsumer : IConsumer<LowStockDetected>
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<NotificationConsumer> _logger;
         private readonly IHubContext<InventoryAlertHub> _hub;
 
-        public NotificationConsumer(IHubContext<InventoryAlertHub> hub, ILogger logger) {
+        public NotificationConsumer(IHubContext<InventoryAlertHub> hub, ILogger<NotificationConsumer> logger) {
             _hub = hub;
             _logger = logger;
         }
@@ -33,7 +33,9 @@ namespace ProjectCore.Consumers
                 "[Consumer] LowStockDetected -> SignalR — Product {Id}, Qty {Qty}, {Priority}",
                 m.ProductId, m.SqlQuantity, m.AlertPriority);
 
-            await _hub.Clients.All.SendAsync("ReceiveAlert", alert, context.CancellationToken);
+            await _hub.Clients
+                .All
+                .SendAsync("ReceiveAlert", alert, context.CancellationToken);
         }
     }
 }

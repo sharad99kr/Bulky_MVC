@@ -121,27 +121,29 @@ namespace ProjectCore.Configuration
 
                 //Registering InventoryReader for reading inventory data to be used in RAG scenarios
                 services.AddScoped<IInventoryReader, InventoryReader>();
-                
+                services.AddScoped<IInventoryAgentFactory, InventoryAgentFactory>();
+                services.AddScoped<IInventoryOrchestrator, InventoryOrchestrationService>();
+
                 services.AddSingleton<IChatClient>(sp =>
-                {
-                    var config = sp.GetRequiredService<IConfiguration>();
-                    var endpoint = config["AzureOpenAI:Endpoint"]!;
-                    var deploymentName = config["AzureOpenAI:DeploymentName"]!;
+                    {
+                        var config = sp.GetRequiredService<IConfiguration>();
+                        var endpoint = config["AzureOpenAI:Endpoint"]!;
+                        var deploymentName = config["AzureOpenAI:DeploymentName"]!;
 
-                    var apiKey = config["AzureOpenAI:ApiKey"]!;
-                    AzureOpenAIClient azureClient = string.IsNullOrEmpty(apiKey) 
-                        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential()) 
-                        : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+                        var apiKey = config["AzureOpenAI:ApiKey"]!;
+                        AzureOpenAIClient azureClient = string.IsNullOrEmpty(apiKey) 
+                            ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential()) 
+                            : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
 
-                    return azureClient
-                            .GetChatClient(deploymentName)
-                            .AsIChatClient()
-                            .AsBuilder()
-                            .UseFunctionInvocation()
-                            .Build();
-                });
+                        return azureClient
+                                .GetChatClient(deploymentName)
+                                .AsIChatClient()
+                                .AsBuilder()
+                                .UseFunctionInvocation()
+                                .Build();
+                    });
 
-                return services;
+                    return services;
             }
     }
 

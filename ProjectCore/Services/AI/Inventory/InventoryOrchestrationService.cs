@@ -55,8 +55,16 @@ namespace ProjectCore.Services.AI.Inventory
 
             _logger.LogInformation("[Inventory] Deterministic scan published {Count} LowStockDetected event(s)", publishedAlerts);
 
-            //Step 2: Non-deterministic reasoning: Agent workflow produces a human readable briefing
-            var briefing = await BuildBriefingAsync(lowStockItems.Count, cancellationToken);
+            string briefing;
+            try {
+                //Step 2: Non-deterministic reasoning: Agent workflow produces a human readable briefing
+                briefing = await BuildBriefingAsync(lowStockItems.Count, cancellationToken);
+
+            } catch(Exception ex) {
+                _logger.LogWarning(ex, "[Inventory] Outer guard — briefing failed, using summary");
+                briefing = DeterministicSummary(lowStockItems.Count);
+            }
+
 
             return new InventoryCheckResult
             (
