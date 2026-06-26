@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulky.Tests", "Bulky.Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulky.McpServer", "Bulky.McpServer\Bulky.McpServer.csproj", "{376FE7A8-43A7-4478-897D-44BB43DA5698}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bulky.AzureFunction", "Bulky.AzureFunction", "{75464FA5-FF13-779D-1803-10C3E6527B21}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulky_AzureFunction", "Bulky.AzureFunction\Bulky_AzureFunction.csproj", "{24FBED05-D139-43C3-AECE-2F146F1E984B}"
 EndProject
 Global
@@ -116,9 +114,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{24FBED05-D139-43C3-AECE-2F146F1E984B} = {75464FA5-FF13-779D-1803-10C3E6527B21}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1507E6D7-D029-4797-816B-F32E79E215CE}
