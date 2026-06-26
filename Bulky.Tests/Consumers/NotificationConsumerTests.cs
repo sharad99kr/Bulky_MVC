@@ -1,11 +1,11 @@
-﻿using MassTransit;
+﻿using Bulky.DataAccess.AI.Inventory.Messages;
+using MassTransit;
 using MassTransit.Testing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using ProjectCore.Consumers;
 using ProjectCore.Hubs;
-using ProjectCore.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;

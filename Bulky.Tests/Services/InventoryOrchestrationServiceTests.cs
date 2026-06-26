@@ -1,10 +1,12 @@
-﻿using MassTransit;
+﻿using Bulky.DataAccess.AI.Inventory.Interfaces;
+using Bulky.DataAccess.AI.Inventory.Messages;
+using Bulky.DataAccess.AI.Inventory.Models;
+using Bulky.DataAccess.AI.Inventory.Services;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProjectCore.CQRS.Queries;
-using ProjectCore.Messages;
 using ProjectCore.Plugins;
-using ProjectCore.Services.AI.Inventory;
 using System;
 using System.Collections.Generic;
 using System.Linq;

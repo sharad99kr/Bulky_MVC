@@ -1,7 +1,9 @@
-﻿using Moq;
+﻿using Bulky.DataAccess.AI.CQRS.Commands;
+using Bulky.DataAccess.AI.CQRS.Handlers;
+using Bulky.DataAccess.AI.Inventory.Interfaces;
+using Moq;
 using ProjectCore.CQRS.Commands;
 using ProjectCore.CQRS.Handlers;
-using ProjectCore.Services.AI.Inventory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
