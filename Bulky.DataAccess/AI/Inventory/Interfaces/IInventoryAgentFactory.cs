@@ -1,5 +1,5 @@
 ﻿using Microsoft.Agents.AI;
-namespace ProjectCore.Plugins
+namespace Bulky.DataAccess.AI.Inventory.Interfaces
 {
     public interface IInventoryAgentFactory
     {

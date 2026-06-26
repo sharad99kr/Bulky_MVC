@@ -1,7 +1,7 @@
-﻿using MassTransit;
+﻿using Bulky.DataAccess.AI.Inventory.Messages;
+using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using ProjectCore.Hubs;
-using ProjectCore.Messages;
 
 namespace ProjectCore.Consumers
 {

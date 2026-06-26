@@ -1,3 +1,5 @@
+using Azure.Search.Documents.KnowledgeBases.Models;
+using Bulky.DataAccess;
 using Bulky.DataAccess.Data;
 using Bulky.DataAccess.DbInitializer;
 using Bulky.DataAccess.Repository;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using ProjectCore;
 using ProjectCore.Configuration;
 using ProjectCore.Consumers;
 using ProjectCore.Hubs;
@@ -100,7 +103,10 @@ builder.Services.AddRateLimiter(options => {
 builder.Services.AddAIServices(builder.Configuration);
 
 //MediatR
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssemblyContaining<ProjectCoreAssemblyMarker>();   // handlers live here
+    cfg.RegisterServicesFromAssemblyContaining<DataAccessAssemblyMarker>(); // commands live here
+});
 
 //MassTransit
 var rabbitHost = builder.Configuration["RabbitMQ:Host"];
@@ -187,6 +193,11 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.UseExceptionHandler(a => a.Run(async ctx => {
+    var ex = ctx.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    await ctx.Response.WriteAsJsonAsync(new { error = ex?.Error.ToString() });
+}));
 
 app.Run();
 

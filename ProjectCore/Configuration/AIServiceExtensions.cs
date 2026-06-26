@@ -3,6 +3,8 @@ using Azure.AI.OpenAI;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
+using Bulky.DataAccess.AI.Inventory.Interfaces;
+using Bulky.DataAccess.AI.Inventory.Services;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Utility;
@@ -16,7 +18,6 @@ using ProjectCore.Filters;
 using ProjectCore.Models.AI;
 using ProjectCore.Plugins;
 using ProjectCore.Services.AI;
-using ProjectCore.Services.AI.Inventory;
 
 namespace ProjectCore.Configuration
 {

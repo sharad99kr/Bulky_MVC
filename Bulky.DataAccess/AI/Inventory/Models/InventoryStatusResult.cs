@@ -1,4 +1,4 @@
-﻿namespace ProjectCore.CQRS.Queries
+﻿namespace Bulky.DataAccess.AI.Inventory.Models
 {
     public record InventoryStatusResult(
         int ProductId,

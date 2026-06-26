@@ -1,8 +1,10 @@
-﻿using Bulky.DataAccess.Repository.IRepository;
-using ProjectCore.CQRS.Queries;
+﻿using Bulky.DataAccess.AI.Inventory.Interfaces;
+using Bulky.DataAccess.AI.Inventory.Models;
+using Bulky.DataAccess.Repository.IRepository;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 
-namespace ProjectCore.Services.AI.Inventory
+namespace Bulky.DataAccess.AI.Inventory.Services
 {
     public class InventoryReader : IInventoryReader
     {

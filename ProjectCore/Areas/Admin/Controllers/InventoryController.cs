@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Bulky.DataAccess.AI.CQRS.Commands;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;

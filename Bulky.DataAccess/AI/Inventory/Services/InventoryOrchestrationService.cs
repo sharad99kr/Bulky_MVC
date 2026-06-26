@@ -1,12 +1,13 @@
-﻿using ProjectCore.Plugins;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.Components.Web.Virtualization;
-using ProjectCore.Messages;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Agents.AI.Workflows;
+using Bulky.DataAccess.AI.Inventory.Interfaces;
+using Microsoft.Extensions.Logging;
+using Bulky.DataAccess.AI.Inventory.Messages;
 
-namespace ProjectCore.Services.AI.Inventory
+namespace Bulky.DataAccess.AI.Inventory.Services
 {
     public class InventoryOrchestrationService : IInventoryOrchestrator
     {

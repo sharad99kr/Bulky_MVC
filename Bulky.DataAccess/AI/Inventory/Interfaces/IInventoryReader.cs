@@ -1,6 +1,6 @@
-﻿using ProjectCore.CQRS.Queries;
+﻿using Bulky.DataAccess.AI.Inventory.Models;
 
-namespace ProjectCore.Services.AI.Inventory
+namespace Bulky.DataAccess.AI.Inventory.Interfaces
 {
     public interface IInventoryReader
     {

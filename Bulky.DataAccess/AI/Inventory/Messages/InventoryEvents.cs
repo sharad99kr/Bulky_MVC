@@ -1,4 +1,4 @@
-﻿namespace ProjectCore.Messages
+﻿namespace Bulky.DataAccess.AI.Inventory.Messages
 {
     //Published when SQL stock falls at/below the threshold
     public record LowStockDetected(

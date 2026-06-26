@@ -1,8 +1,8 @@
-﻿using Microsoft.Agents.AI;
+﻿using Bulky.DataAccess.AI.Inventory.Interfaces;
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using ProjectCore.Services.AI.Inventory;
 
-namespace ProjectCore.Plugins
+namespace Bulky.DataAccess.AI.Inventory.Services
 {
     public class InventoryAgentFactory : IInventoryAgentFactory
     {

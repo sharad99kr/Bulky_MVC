@@ -1,8 +1,8 @@
-﻿using MediatR;
-using ProjectCore.CQRS.Commands;
-using ProjectCore.Services.AI.Inventory;
+﻿using Bulky.DataAccess.AI.CQRS.Commands;
+using Bulky.DataAccess.AI.Inventory.Interfaces;
+using MediatR;
 
-namespace ProjectCore.CQRS.Handlers
+namespace Bulky.DataAccess.AI.CQRS.Handlers
 {
     public class TriggerInventoryCheckCommandHandler
                                     : IRequestHandler<TriggerInventoryCheckCommand, InventoryCheckResult>

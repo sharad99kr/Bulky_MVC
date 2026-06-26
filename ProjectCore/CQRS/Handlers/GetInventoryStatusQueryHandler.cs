@@ -1,4 +1,5 @@
-﻿using Bulky.DataAccess.Repository.IRepository;
+﻿using Bulky.DataAccess.AI.Inventory.Models;
+using Bulky.DataAccess.Repository.IRepository;
 using MediatR;
 using ProjectCore.CQRS.Queries;
 

@@ -1,4 +1,4 @@
-﻿namespace ProjectCore.Services.AI.Inventory
+﻿namespace Bulky.DataAccess.AI.Inventory.Interfaces
 {
     public interface IInventoryOrchestrator
     {
