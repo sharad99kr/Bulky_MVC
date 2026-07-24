@@ -30,10 +30,29 @@
     loadHistory();
 
     //------Toggle open/close------
+    // Restore previous state
+    const isMinimized = localStorage.getItem("chatMinimized") === "true";
+
+    if (isMinimized) {
+        body.style.display = "none";
+        toggle.textContent = "▸";
+    } else {
+        body.style.display = "flex";
+        toggle.textContent = "▾";
+    }
+
     toggle.addEventListener("click", () => {
         const open = body.style.display !== "none";
-        body.style.display = open ? "none" : "flex";
-        toggle.textContent = open ? "▸" : "▾";
+
+        if (open) {
+            body.style.display = "none";
+            toggle.textContent = "▸";
+            localStorage.setItem("chatMinimized", "true");
+        } else {
+            body.style.display = "flex";
+            toggle.textContent = "▾";
+            localStorage.setItem("chatMinimized", "false");
+        }
     });
 
     //------New chat ------
