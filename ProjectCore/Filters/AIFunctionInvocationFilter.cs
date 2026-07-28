@@ -26,7 +26,7 @@ namespace ProjectCore.Filters
                 if(value.Contains("ignore previous instructions", StringComparison.OrdinalIgnoreCase) || 
                                     value.Contains("system prompt", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("[SK Filter] Bloced suspecious input attempt on {Plugin}.{Function} with value: {Value}",
+                    _logger.LogWarning("[SK Filter] Blocked suspicious input attempt on {Plugin}.{Function} with value: {Value}",
                     pluginName, functionName, value);
                     context.Result = new FunctionResult(context.Function, "Invalid Input Detected");
                     return; 
