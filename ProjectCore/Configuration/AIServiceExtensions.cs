@@ -67,7 +67,9 @@ namespace ProjectCore.Configuration
             sp.GetRequiredService<Kernel>()
             .GetRequiredService<IChatCompletionService>());
 
-            services.AddTransient<OrderPlugin>();
+            //OrderPlugin is deliberately NOT registered: it needs a per-request user id,
+            //so ChatKernelFactory constructs it per call. Leaving a registration here would
+            //let something resolve a plugin with no owner scoping.
             services.AddTransient<ProductPlugin>();
 
             services.AddScoped<IChatKernelFactory, ChatKernelFactory>();

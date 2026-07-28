@@ -1,9 +1,9 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 
 namespace ProjectCore.Plugins
 {
     public interface IChatKernelFactory
     {
-        Kernel CreateForChat();
+        Kernel CreateForChat(string userId);
     }
 }

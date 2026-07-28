@@ -36,6 +36,19 @@ namespace ProjectCore.Services.AI
             
             var resolvedId = conversationId??Guid.NewGuid();
 
+            // Every order lookup is scoped to this id. A null/empty one would silently
+            // match zero rows on every query, so fail here rather than tell the caller
+            // they have no orders.
+            if(string.IsNullOrWhiteSpace(userId)) {
+                _logger.LogWarning("[Chat] Rejected message with no resolved user id on conversation {ConversationId}", resolvedId);
+                return new ChatResponse(
+                    Message: FallBackMessage,
+                    ConversationId: resolvedId,
+                    FromCache: false,
+                    FallbackUsed: true,
+                    TokensUsed: 0);
+            }
+
             try {
 
                 //step 0: load history from DB (replaces client-sent history)
@@ -46,7 +59,7 @@ namespace ProjectCore.Services.AI
                 var ragSearchData = await BuildRagContextAsync(userMessage, cancellationToken);
 
                 //step 2: build kernel with plugins attached
-                var kernel = _chatPluginFactory.CreateForChat();
+                var kernel = _chatPluginFactory.CreateForChat(userId);
 
                 //step 3: build ChatHistory with system prompt + history
                 if(ragSearchData.ragContext!= null) {
